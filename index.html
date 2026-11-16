@@ -176,8 +176,6 @@ button.selected{background:var(--orange);color:white;outline:2px solid var(--ora
 
 .quiz-table .revealed{background:var(--greenbg);color:var(--green);font-weight:700}
 
-.quiz-table .masked{color:transparent;background:#f2e8df}
-
 footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 
 @media(max-width:600px){
@@ -534,13 +532,13 @@ let startTime=0,timer=null,cardFlipped=false,tableTask=null;
 
 let currentHadError=false,awaitingAdvance=false,currentFieldIndex=-1;
 
+let remainingTargets=[];
+
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 
 const stamp=()=>new Date().toLocaleString("de-DE");
 
 // Makrons werden beim Vergleich ignoriert.
-
-// Die Originalschreibweise bleibt erhalten.
 
 const norm=s=>String(s??"").trim().toLocaleLowerCase("de-DE")
 
@@ -882,6 +880,8 @@ attempt=0;checked=false;cardFlipped=false;
 
 awaitingAdvance=false;currentFieldIndex=-1;
 
+remainingTargets=[];
+
 $("progressText").textContent="Noch "+(queue.length+1)+" Abfrage(n)";
 
 $("progressBar").style.width=((vocab.length-queue.length)/Math.max(vocab.length,queue.length+1)*100)+"%";
@@ -922,7 +922,7 @@ question=e.forms.join(", ");
 
 targets=e.meanings;
 
-direction="Gib alle deutschen Bedeutungen einzeln ein.";
+direction="Gib alle deutschen Bedeutungen ein. Die Reihenfolge ist egal.";
 
 }
 
@@ -932,7 +932,7 @@ question=e.forms[0];
 
 targets=e.forms.slice(1);
 
-direction="Ergänze die weiteren Verbformen in der angegebenen Reihenfolge.";
+direction="Ergänze die weiteren Verbformen. Die Reihenfolge ist egal.";
 
 }
 
@@ -942,11 +942,13 @@ question=e.forms[0];
 
 targets=e.forms.slice(1);
 
-direction="Gib die weiteren lateinischen Formen in der angegebenen Reihenfolge ein.";
+direction="Gib die weiteren lateinischen Formen ein. Die Reihenfolge ist egal.";
 
 }
 
 current.targets=targets;
+
+remainingTargets=[...targets];
 
 currentHadError=false;
 
@@ -996,17 +998,17 @@ if(ev.key!=="Enter")return;
 
 ev.preventDefault();
 
-if(checked){
+if(awaitingAdvance){
 
-next();
+advanceTyping();
 
 return;
 
 }
 
-if(awaitingAdvance){
+if(checked){
 
-advanceTyping();
+next();
 
 return;
 
@@ -1022,7 +1024,7 @@ wrap.append(lab,inp,result);
 
 box.append(wrap);
 
-fields.push({input:inp,result,target:t,done:false});
+fields.push({input:inp,result,target:"",done:false});
 
 });
 
@@ -1106,7 +1108,7 @@ return box;
 
 }
 
-// Prüft eine einzelne Bedeutung/Form.
+// Prüft eine Antwort gegen ALLE noch offenen Bedeutungen/Formen.
 
 function checkTyping(index){
 
@@ -1120,13 +1122,33 @@ let answer=item.input.value.trim();
 
 if(!answer)return;
 
-total++;
+// Die Eingabe darf jeder noch nicht verwendeten Lösung entsprechen.
 
-let good=norm(answer)===norm(item.target);
+let matchIndex=remainingTargets.findIndex(
+
+target=>norm(answer)===norm(target)
+
+);
+
+let good=matchIndex!==-1;
+
+// Bei einer falschen Antwort wird eine noch offene Lösung angezeigt.
+
+let correctAnswer=good
+
+?remainingTargets[matchIndex]
+
+:remainingTargets[0];
+
+if(!correctAnswer)return;
+
+total++;
 
 item.done=true;
 
 item.input.readOnly=true;
+
+item.target=correctAnswer;
 
 item.result.className="meaning-result "+(good?"correct":"wrong");
 
@@ -1134,17 +1156,21 @@ item.result.replaceChildren();
 
 let heading=document.createElement("strong");
 
-heading.textContent=good?"✓ RICHTIG!":"✗ FALSCH – RICHTIGE LÖSUNG:";
+heading.textContent=good
+
+?"✓ RICHTIG!"
+
+:"✗ FALSCH – RICHTIGE LÖSUNG:";
 
 item.result.append(heading);
-
-// Die korrekte Schreibweise wird IMMER angezeigt.
-
-// Auch bei der letzten Bedeutung bleibt sie stehen.
 
 if(good){
 
 correct++;
+
+// Die erkannte Bedeutung ist erledigt und kann nicht nochmals verwendet werden.
+
+remainingTargets.splice(matchIndex,1);
 
 let detail=document.createElement("div");
 
@@ -1154,7 +1180,7 @@ detail.style.fontSize="17px";
 
 detail.style.marginTop="5px";
 
-detail.textContent=item.target;
+detail.textContent=correctAnswer;
 
 item.result.append(detail);
 
@@ -1164,11 +1190,9 @@ wrong++;
 
 currentHadError=true;
 
-item.result.append(comparisonHTML(answer,item.target));
+item.result.append(comparisonHTML(answer,correctAnswer));
 
-}
-
-if(!good&&$("editDuring").value==="on"){
+if($("editDuring").value==="on"){
 
 $("editSolution").classList.remove("hidden");
 
@@ -1176,7 +1200,9 @@ $("solutionEditor").value=current.targets.join("\n");
 
 }
 
-// Nach jeder Antwort wird ausdrücklich auf Enter gewartet.
+}
+
+// Nach jeder Antwort wird auf Enter gewartet.
 
 awaitingAdvance=true;
 
@@ -1184,31 +1210,43 @@ currentFieldIndex=index;
 
 let nextItem=fields.find((f,i)=>i>index&&!f.done);
 
-if(nextItem){
+$("keyboardHint").textContent=nextItem
 
-$("keyboardHint").textContent=
+?"Antwort gespeichert. Enter = nächste Bedeutung/Form."
 
-"Antwort gespeichert. Enter = nächste Bedeutung/Form.";
-
-}else{
-
-$("keyboardHint").textContent=
-
-"Letzte Antwort gespeichert. Enter = Abfrage abschließen.";
-
-}
+:"Antwort gespeichert. Enter = nächste Vokabel.";
 
 updateStats();
 
 }
 
-// Erst nach einem weiteren Enter wird die nächste Bedeutung freigegeben.
+// Enter übernimmt die Korrektur in die Eingabezeile und geht weiter.
 
 function advanceTyping(){
 
 if(!awaitingAdvance)return;
 
 awaitingAdvance=false;
+
+let currentItem=fields[currentFieldIndex];
+
+if(currentItem){
+
+// Richtige Lösung in der Eingabezeile stehen lassen.
+
+if(currentItem.target){
+
+currentItem.input.value=currentItem.target;
+
+}
+
+// Korrekturbalken entfernen, damit der Bildschirm kompakt bleibt.
+
+currentItem.result.className="meaning-result hidden";
+
+currentItem.result.replaceChildren();
+
+}
 
 let nextItem=fields.find((f,i)=>i>currentFieldIndex&&!f.done);
 
@@ -1218,45 +1256,33 @@ nextItem.input.disabled=false;
 
 nextItem.input.readOnly=false;
 
+nextItem.input.value="";
+
 nextItem.input.focus();
 
 $("keyboardHint").textContent=
 
-"Bedeutung/Form "+(fields.indexOf(nextItem)+1)+" von "+fields.length+" – Enter = prüfen.";
+"Bedeutung/Form "+(fields.indexOf(nextItem)+1)+
+
+" von "+fields.length+" – Enter = prüfen.";
 
 return;
 
 }
 
-// Alle Bedeutungen sind abgearbeitet.
+// Alle Bedeutungen wurden abgefragt.
 
-// Fehlerhafte Vokabeln kommen am Ende erneut.
-
-checked=true;
+// Fehlerhafte Vokabeln werden am Ende erneut abgefragt.
 
 if(currentHadError){
 
 queue.push(current);
 
-$("feedback").className="feedback wrong";
-
-$("feedback").textContent="Diese Vokabel wird am Ende der Liste wiederholt. Die richtige Schreibweise bleibt oben sichtbar.";
-
-}else{
-
-$("feedback").className="feedback correct";
-
-$("feedback").textContent="Alle Bedeutungen richtig!";
-
 }
 
-$("keyboardHint").textContent="Enter = nächste Vokabel";
+// Kein zusätzliches Enter: direkt zur nächsten Vokabel.
 
-// Die Ergebnisse bleiben bis zum nächsten Tastendruck sichtbar.
-
-let last=fields[fields.length-1];
-
-if(last)last.input.focus();
+next();
 
 }
 
