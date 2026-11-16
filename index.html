@@ -24,47 +24,179 @@
 
 <style>
 
-:root{--orange:#71330f;--orange2:#a94e16;--pale:#f8e9dc;--bg:#fbf5ef;--white:#fff;--green:#167447;--greenbg:#e5f5ec;--red:#b8322b;--redbg:#fae9e7;--text:#34251d;--muted:#806f63;--border:#e7d5c7}
+:root{
 
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+--orange:#71330f;--orange2:#a94e16;--pale:#f8e9dc;
 
-header{background:var(--orange);color:white;text-align:center;padding:20px}header h1{margin:0;font-size:27px}header small{display:block;margin-top:5px;opacity:.85}
+--bg:#fbf5ef;--white:#fff;--green:#167447;--greenbg:#e5f5ec;
 
-main{width:min(980px,100%);margin:22px auto;padding:0 14px 35px}.panel{background:white;border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 3px 12px #71330f0b}
+--red:#b8322b;--redbg:#fae9e7;--text:#34251d;
 
-h2{margin:0 0 14px;color:var(--orange);font-size:20px}h3{color:var(--orange);margin:18px 0 8px}label{display:block;font-weight:650;margin:13px 0 6px}
+--muted:#806f63;--border:#e7d5c7
 
-textarea,input,select{width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font:inherit;background:white;color:var(--text)}textarea{min-height:190px;resize:vertical;line-height:1.5}input:focus,textarea:focus,select:focus{outline:3px solid #a94e1633;border-color:var(--orange2)}
+}
 
-button{border:0;border-radius:10px;padding:12px 17px;font:inherit;font-weight:700;cursor:pointer;background:var(--orange2);color:white}button:disabled{opacity:.5;cursor:not-allowed}button.secondary{background:var(--pale);color:var(--orange);border:1px solid var(--border)}button.selected{background:var(--orange);color:white;outline:2px solid var(--orange2)}
+*{box-sizing:border-box}
 
-.button-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:13px}.hint{color:var(--muted);font-size:13px;line-height:1.5;margin-top:9px}.hidden{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
 
-.step-heading{display:flex;align-items:center;gap:11px;margin:0 0 14px}.step-number{display:inline-flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;background:var(--orange);color:white;font-weight:800}
+header{background:var(--orange);color:white;text-align:center;padding:20px}
 
-.info-box{margin:12px 0;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--pale)}.info-box summary{color:var(--orange);font-weight:750;cursor:pointer}.info-content{margin-top:12px;font-size:14px;line-height:1.6}.info-content li{margin-bottom:6px}
+header h1{margin:0;font-size:27px}
 
-.mode-options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.mode-button{padding:16px 10px;background:var(--pale);border:2px solid var(--border);color:var(--orange);border-radius:13px;font-size:16px}.mode-button.selected{background:var(--orange);color:white}
+header small{display:block;margin-top:5px;opacity:.85}
 
-.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.history-list{display:grid;gap:8px;margin-top:10px}.history-item{display:flex;justify-content:space-between;gap:10px;text-align:left;background:var(--pale);color:var(--orange);border:1px solid var(--border);width:100%;padding:12px}.history-item.active{border:2px solid var(--orange2)}.history-item small{display:block;color:var(--muted);font-weight:400}.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{background:var(--pale);border:1px solid var(--border);border-radius:13px;padding:14px;text-align:center}.stat strong{display:block;color:var(--orange);font-size:24px}.stat span{font-size:12px;color:var(--muted)}
+.header-meta{display:flex;justify-content:center;align-items:center;gap:13px;flex-wrap:wrap;margin-top:12px;font-size:11px;opacity:.8}
 
-.progress{height:9px;border-radius:20px;overflow:hidden;background:#eee2d8;margin:12px 0}.progress div{height:100%;width:0;background:var(--orange2);transition:width .2s}
+.header-meta a{color:white;text-decoration:underline;text-underline-offset:3px}
 
-.question{text-align:center;padding:18px 8px}.direction{color:var(--muted);margin-bottom:12px}.word{font-size:clamp(28px,7vw,43px);font-weight:800;color:var(--orange);overflow-wrap:anywhere}
+.header-meta a:hover{opacity:1}
 
-.answer-grid{display:grid;gap:9px}.answer-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.answer-row small{color:var(--muted)}#answerInput{font-size:20px;text-align:center;margin:8px 0}
+.header-credit{letter-spacing:.3px}
 
-.meaning-result{border:1px solid var(--border);border-radius:10px;padding:10px;margin-top:7px;font-size:14px}.meaning-result.correct{background:var(--greenbg);color:var(--green)}.meaning-result.wrong{background:var(--redbg);color:var(--red)}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.compare-box{min-width:0;border:1px solid var(--border);border-radius:8px;padding:9px;text-align:center;background:#fff;color:var(--text)}.compare-label{font-size:11px;color:var(--muted);margin-bottom:5px}.compare-word{font-size:clamp(17px,4vw,23px);font-weight:750;overflow-wrap:anywhere}.good-letter{color:var(--green)}.bad-letter{color:var(--red);text-decoration:underline;text-decoration-thickness:2px}
+main{width:min(980px,100%);margin:22px auto;padding:0 14px 35px}
 
-.feedback{border-radius:12px;padding:14px;margin-top:12px;line-height:1.5}.feedback.correct{background:var(--greenbg);color:var(--green)}.feedback.wrong{background:var(--redbg);color:var(--red)}.feedback strong{font-size:18px}
+.panel{background:white;border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 3px 12px #71330f0b}
 
-.card-word{font-size:clamp(28px,7vw,42px);font-weight:800;text-align:center;padding:35px 10px;color:var(--orange);overflow-wrap:anywhere;cursor:pointer}
+h2{margin:0 0 14px;color:var(--orange);font-size:20px}
 
-.table-scroll{overflow-x:auto}.quiz-table{border-collapse:collapse;width:100%;font-size:14px}.quiz-table th,.quiz-table td{border:1px solid var(--border);padding:8px;text-align:center}.quiz-table th{background:var(--pale);color:var(--orange)}.quiz-table .revealed{background:var(--greenbg);color:var(--green);font-weight:700}.quiz-table .masked{color:transparent;background:#f2e8df}
+h3{color:var(--orange);margin:18px 0 8px}
+
+label{display:block;font-weight:650;margin:13px 0 6px}
+
+textarea,input,select{width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font:inherit;background:white;color:var(--text)}
+
+textarea{min-height:190px;resize:vertical;line-height:1.5}
+
+input:focus,textarea:focus,select:focus{outline:3px solid #a94e1633;border-color:var(--orange2)}
+
+button{border:0;border-radius:10px;padding:12px 17px;font:inherit;font-weight:700;cursor:pointer;background:var(--orange2);color:white}
+
+button:disabled{opacity:.5;cursor:not-allowed}
+
+button.secondary{background:var(--pale);color:var(--orange);border:1px solid var(--border)}
+
+button.selected{background:var(--orange);color:white;outline:2px solid var(--orange2)}
+
+.button-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:13px}
+
+.hint{color:var(--muted);font-size:13px;line-height:1.5;margin-top:9px}
+
+.hidden{display:none!important}
+
+.step-heading{display:flex;align-items:center;gap:11px;margin:0 0 14px}
+
+.step-number{display:inline-flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;background:var(--orange);color:white;font-weight:800}
+
+.info-box{margin:12px 0;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--pale)}
+
+.info-box summary{color:var(--orange);font-weight:750;cursor:pointer}
+
+.info-content{margin-top:12px;font-size:14px;line-height:1.6}
+
+.info-content li{margin-bottom:6px}
+
+.mode-options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+
+.mode-button{padding:16px 10px;background:var(--pale);border:2px solid var(--border);color:var(--orange);border-radius:13px;font-size:16px}
+
+.mode-button.selected{background:var(--orange);color:white}
+
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.history-list{display:grid;gap:8px;margin-top:10px}
+
+.history-item{display:flex;justify-content:space-between;gap:10px;text-align:left;background:var(--pale);color:var(--orange);border:1px solid var(--border);width:100%;padding:12px}
+
+.history-item.active{border:2px solid var(--orange2)}
+
+.history-item small{display:block;color:var(--muted);font-weight:400}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+
+.stat{background:var(--pale);border:1px solid var(--border);border-radius:13px;padding:14px;text-align:center}
+
+.stat strong{display:block;color:var(--orange);font-size:24px}
+
+.stat span{font-size:12px;color:var(--muted)}
+
+.progress{height:9px;border-radius:20px;overflow:hidden;background:#eee2d8;margin:12px 0}
+
+.progress div{height:100%;width:0;background:var(--orange2);transition:width .2s}
+
+.question{text-align:center;padding:18px 8px}
+
+.direction{color:var(--muted);margin-bottom:12px}
+
+.word{font-size:clamp(28px,7vw,43px);font-weight:800;color:var(--orange);overflow-wrap:anywhere}
+
+.answer-grid{display:grid;gap:9px}
+
+.answer-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+
+.answer-row small{color:var(--muted)}
+
+#answerInput{font-size:20px;text-align:center;margin:8px 0}
+
+.meaning-result{border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:7px;font-size:14px;line-height:1.5}
+
+.meaning-result.correct{background:var(--greenbg);color:var(--green)}
+
+.meaning-result.wrong{background:var(--redbg);color:var(--red)}
+
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+
+.compare-box{min-width:0;border:1px solid var(--border);border-radius:8px;padding:9px;text-align:center;background:#fff;color:var(--text)}
+
+.compare-label{font-size:11px;color:var(--muted);margin-bottom:5px}
+
+.compare-word{font-size:clamp(17px,4vw,23px);font-weight:750;overflow-wrap:anywhere}
+
+.good-letter{color:var(--green)}
+
+.bad-letter{color:var(--red);text-decoration:underline;text-decoration-thickness:2px}
+
+.feedback{border-radius:12px;padding:14px;margin-top:12px;line-height:1.5}
+
+.feedback.correct{background:var(--greenbg);color:var(--green)}
+
+.feedback.wrong{background:var(--redbg);color:var(--red)}
+
+.feedback strong{font-size:18px}
+
+.card-word{font-size:clamp(28px,7vw,42px);font-weight:800;text-align:center;padding:35px 10px;color:var(--orange);overflow-wrap:anywhere;cursor:pointer;white-space:pre-line}
+
+.table-scroll{overflow-x:auto}
+
+.quiz-table{border-collapse:collapse;width:100%;font-size:14px}
+
+.quiz-table th,.quiz-table td{border:1px solid var(--border);padding:8px;text-align:center}
+
+.quiz-table th{background:var(--pale);color:var(--orange)}
+
+.quiz-table .revealed{background:var(--greenbg);color:var(--green);font-weight:700}
+
+.quiz-table .masked{color:transparent;background:#f2e8df}
 
 footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 
-@media(max-width:600px){main{margin-top:12px}.panel{padding:16px}.stats-grid{grid-template-columns:1fr 1fr}.settings-grid{grid-template-columns:1fr}.step-number{flex-basis:31px;width:31px;height:31px}button{padding:12px 13px}.answer-row{grid-template-columns:1fr}}
+@media(max-width:600px){
+
+main{margin-top:12px}
+
+.panel{padding:16px}
+
+.stats-grid{grid-template-columns:1fr 1fr}
+
+.settings-grid{grid-template-columns:1fr}
+
+.step-number{flex-basis:31px;width:31px;height:31px}
+
+button{padding:12px 13px}
+
+.answer-row{grid-template-columns:1fr}
+
+}
 
 </style>
 
@@ -72,91 +204,265 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 
 <body>
 
-<header><h1>Latein-Trainer</h1><small>LTrain2k · Latein lernen. Schritt für Schritt.</small></header>
+<header>
+
+<h1>Latein-Trainer</h1>
+
+<small>LTrain2k · Latein lernen. Schritt für Schritt.</small>
+
+<div class="header-meta">
+
+<span class="header-credit">Markus Ekler</span>
+
+<a href="https://github.com/maekdev/LTrain2k" target="_blank" rel="noopener noreferrer">Quellcode</a>
+
+<a href="https://maekdev.github.io/LTrain2k" target="_blank" rel="noopener noreferrer">Programm-Website</a>
+
+</div>
+
+</header>
 
 <main>
 
 <section class="panel" id="setupPanel">
 
- <div class="step-heading"><span class="step-number">1</span><h2>Vokabeln vorbereiten</h2></div>
+<div class="step-heading"><span class="step-number">1</span><h2>Vokabeln vorbereiten</h2></div>
 
- <details class="info-box"><summary>❔ Bedienungsanleitung und Eingabeformat</summary><div class="info-content">
+<details class="info-box">
 
- <p>Eine Zeile pro Eintrag: <code>Lateinische Grundform | deutsche Bedeutung(en) | Typ</code>.</p>
+<summary>❔ Bedienungsanleitung und Eingabeformat</summary>
 
- <p>Mehrere deutsche Bedeutungen mit Semikolon trennen. Mehrere lateinische Formen stehen links, ebenfalls mit Komma getrennt. Der erste Eintrag ist die Grundform. Typen: <code>verb</code>, <code>adj</code>, <code>noun</code>, <code>pron</code> oder <code>other</code>. Ohne Typ wird der Eintrag im Grundformenmodus gelernt.</p>
+<div class="info-content">
 
- <p>Beispiel: <code>nōscere, nōscō, nōvī | erkennen; kennenlernen | verb</code></p>
+<p>Eine Zeile pro Eintrag: <code>Lateinische Grundform | deutsche Bedeutung(en) | Typ</code>.</p>
 
- <p>Für den experimentellen Tabellarium-Modus sind Zusatzzeilen möglich: <code>!tabverb|vocare|Präsens 1. Sg.|voco</code>. Mehrere Zeilen mit derselben Grundform bilden eine Tabelle. Diese Sonderzeilen werden nicht als normale Vokabeln abgefragt.</p>
+<p>Mehrere deutsche Bedeutungen mit Semikolon trennen. Mehrere lateinische Formen stehen links, ebenfalls mit Komma getrennt. Der erste Eintrag ist die Grundform. Typen: <code>verb</code>, <code>adj</code>, <code>noun</code>, <code>pron</code> oder <code>other</code>. Ohne Typ wird der Eintrag im Grundformenmodus gelernt.</p>
 
- <p>Zeilen, die mit <code>#</code> beginnen, sind Kommentare. Die Daten bleiben lokal in diesem Browser gespeichert.</p>
+<p>Beispiel: <code>nōscere, nōscō, nōvī | erkennen; kennenlernen | verb</code></p>
 
- </div></details>
+<p>Für den experimentellen Tabellarium-Modus sind Zusatzzeilen möglich: <code>!tabverb|vocare|Präsens 1. Sg.|voco</code>. Mehrere Zeilen mit derselben Grundform bilden eine Tabelle. Diese Sonderzeilen werden nicht als normale Vokabeln abgefragt.</p>
 
- <label for="vocabText">Vokabeltext bearbeiten</label>
+<p>Zeilen, die mit <code>#</code> beginnen, sind Kommentare. Die Daten bleiben lokal in diesem Browser gespeichert.</p>
 
- <textarea id="vocabText" spellcheck="false" placeholder="vetus, veteris | alt | adj&#10;nōscere, nōscō, nōvī | erkennen; kennenlernen | verb"></textarea>
+</div>
 
- <div class="hint">Du kannst die Liste direkt im Textfenster ändern, als TXT öffnen und mit einem eigenen Dateinamen speichern.</div>
+</details>
 
- <details class="info-box"><summary>🤖 Prompt für die KI-Erfassung aus Buchfotos</summary><div class="info-content">
+<label for="vocabText">Vokabeltext bearbeiten</label>
 
- <p>Foto zusammen mit diesem Prompt an eine KI senden. Der Prompt berücksichtigt lateinische Längenstriche (Makrons).</p>
+<textarea id="vocabText" spellcheck="false" placeholder="vetus, veteris | alt | adj&#10;nōscere, nōscō, nōvī | erkennen; kennenlernen | verb"></textarea>
 
- <textarea id="aiPrompt" style="min-height:330px" readonly></textarea>
+<div class="hint">Du kannst die Liste direkt im Textfenster ändern, als TXT öffnen und mit einem eigenen Dateinamen speichern.</div>
 
- <div class="button-row"><button id="copyPromptBtn">KI-Prompt kopieren</button></div><div id="copyPromptStatus" class="hint" aria-live="polite"></div>
+<details class="info-box">
 
- </div></details>
+<summary>🤖 Prompt für die KI-Erfassung aus Buchfotos</summary>
 
- <div class="step-heading" style="margin-top:24px"><span class="step-number">2</span><h2>Liste laden und speichern</h2></div>
+<div class="info-content">
 
- <div class="button-row"><button id="loadTextBtn">Liste übernehmen</button><button class="secondary" id="saveTextBtn">⬇ Als TXT speichern</button><button class="secondary" id="importBtn">TXT-Datei öffnen</button><input id="fileInput" type="file" accept=".txt,text/plain" class="hidden"></div>
+<p>Foto zusammen mit diesem Prompt an eine KI senden. Der Prompt berücksichtigt lateinische Längenstriche (Makrons).</p>
 
- <div class="hint" id="listStatus">Noch keine Vokabeln geladen.</div>
+<textarea id="aiPrompt" style="min-height:330px" readonly></textarea>
 
- <h3>Zuletzt verwendete Listen</h3><div id="historyList" class="history-list"><div class="hint">Noch keine gespeicherten Listen.</div></div>
+<div class="button-row"><button id="copyPromptBtn">KI-Prompt kopieren</button></div>
 
- <div class="step-heading" style="margin-top:24px"><span class="step-number">3</span><h2>Lernmodus wählen</h2></div>
+<div id="copyPromptStatus" class="hint" aria-live="polite"></div>
 
- <div class="mode-options">
+</div>
 
-  <button class="mode-button selected" data-mode="typing">✍️ Eingabe<small style="display:block;font-weight:400">Grundformen und Bedeutungen</small></button>
+</details>
 
-  <button class="mode-button" data-mode="cards">🗂️ Karteikarten<small style="display:block;font-weight:400">Lösung aufdecken</small></button>
+<div class="step-heading" style="margin-top:24px"><span class="step-number">2</span><h2>Liste laden und speichern</h2></div>
 
-  <button class="mode-button" data-mode="verbs">🏛️ Verben / Formenlehre<small style="display:block;font-weight:400">Weitere Verbformen eingeben</small></button>
+<div class="button-row">
 
-  <button class="mode-button" data-mode="tabellarium">📋 Tabellarium<small style="display:block;font-weight:400">Tabellenformen abfragen</small></button>
+<button id="loadTextBtn">Liste übernehmen</button>
 
-  <button class="mode-button" data-mode="nomadj">📚 Nomen / Adjektive<small style="display:block;font-weight:400">Weitere lateinische Form eingeben</small></button>
+<button class="secondary" id="saveTextBtn">⬇ Als TXT speichern</button>
 
- </div>
+<button class="secondary" id="importBtn">TXT-Datei öffnen</button>
 
- <div class="settings-grid"><div><label for="attempts">Versuche pro Abfrage</label><select id="attempts"><option value="1">1 Versuch</option><option value="2">2 Versuche</option><option value="3">3 Versuche</option></select></div><div><label for="editDuring">Lösung beim Abfragen editierbar</label><select id="editDuring"><option value="off">Aus</option><option value="on">Ein (Testfunktion)</option></select></div></div>
+<input id="fileInput" type="file" accept=".txt,text/plain" class="hidden">
 
- <div class="button-row"><button id="startBtn">Lernen starten</button></div>
+</div>
+
+<div class="hint" id="listStatus">Noch keine Vokabeln geladen.</div>
+
+<h3>Zuletzt verwendete Listen</h3>
+
+<div id="historyList" class="history-list"><div class="hint">Noch keine gespeicherten Listen.</div></div>
+
+<div class="step-heading" style="margin-top:24px"><span class="step-number">3</span><h2>Lernmodus wählen</h2></div>
+
+<div class="mode-options">
+
+<button class="mode-button selected" data-mode="typing">✍️ Eingabe<small style="display:block;font-weight:400">Grundformen und Bedeutungen</small></button>
+
+<button class="mode-button" data-mode="cards">🗂️ Karteikarten<small style="display:block;font-weight:400">Lösung aufdecken</small></button>
+
+<button class="mode-button" data-mode="verbs">🏛️ Verben / Formenlehre<small style="display:block;font-weight:400">Weitere Verbformen eingeben</small></button>
+
+<button class="mode-button" data-mode="tabellarium">📋 Tabellarium<small style="display:block;font-weight:400">Tabellenformen abfragen</small></button>
+
+<button class="mode-button" data-mode="nomadj">📚 Nomen / Adjektive<small style="display:block;font-weight:400">Weitere lateinische Form eingeben</small></button>
+
+</div>
+
+<div class="settings-grid">
+
+<div>
+
+<label for="attempts">Versuche pro Abfrage</label>
+
+<select id="attempts">
+
+<option value="1">1 Versuch</option>
+
+<option value="2">2 Versuche</option>
+
+<option value="3">3 Versuche</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label for="editDuring">Lösung beim Abfragen editierbar</label>
+
+<select id="editDuring">
+
+<option value="off">Aus</option>
+
+<option value="on">Ein (Testfunktion)</option>
+
+</select>
+
+</div>
+
+</div>
+
+<div class="button-row"><button id="startBtn">Lernen starten</button></div>
 
 </section>
 
-<section class="panel hidden" id="statsPanel"><h2>Statistik dieser Runde</h2><div class="stats-grid"><div class="stat"><strong id="totalStat">0</strong><span>Antworten</span></div><div class="stat"><strong id="correctStat">0 · 0%</strong><span>Richtig</span></div><div class="stat"><strong id="wrongStat">0 · 0%</strong><span>Falsch</span></div><div class="stat"><strong id="timeStat">00:00</strong><span>Lernzeit</span></div></div></section>
+<section class="panel hidden" id="statsPanel">
+
+<h2>Statistik dieser Runde</h2>
+
+<div class="stats-grid">
+
+<div class="stat"><strong id="totalStat">0</strong><span>Antworten</span></div>
+
+<div class="stat"><strong id="correctStat">0 · 0%</strong><span>Richtig</span></div>
+
+<div class="stat"><strong id="wrongStat">0 · 0%</strong><span>Falsch</span></div>
+
+<div class="stat"><strong id="timeStat">00:00</strong><span>Lernzeit</span></div>
+
+</div>
+
+</section>
 
 <section class="panel hidden" id="learningPanel">
 
- <div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><strong id="progressText">Vokabel</strong><button class="secondary" id="stopBtn">Beenden</button></div><div class="progress"><div id="progressBar"></div></div>
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
 
- <div id="typingArea"><div class="question"><div class="direction" id="directionText">Übersetze</div><div class="word" id="questionWord"></div></div><div id="answerFields" class="answer-grid"></div><div class="hint" id="keyboardHint">Enter = prüfen</div><div id="feedback" class="feedback hidden"></div>
+<strong id="progressText">Vokabel</strong>
 
- <div id="editSolution" class="hidden"><label for="solutionEditor">Erwartete Lösung bearbeiten</label><textarea id="solutionEditor" style="min-height:100px"></textarea><div class="button-row"><button class="secondary" id="applySolutionBtn">Lösung übernehmen</button></div></div></div>
+<button class="secondary" id="stopBtn">Beenden</button>
 
- <div id="cardsArea" class="hidden"><div class="question"><div class="direction">Karte umdrehen</div></div><div class="card-word" id="cardWord"></div><div class="hint" id="cardHint" style="text-align:center">Lösung anzeigen</div><div class="button-row" style="justify-content:center"><button class="secondary" id="flipBtn">Lösung anzeigen</button></div><div class="button-row hidden" id="cardDecision"><button id="cardCorrect">Richtig</button><button id="cardWrong" style="background:var(--red)">Falsch</button></div></div>
+</div>
 
- <div id="tableArea" class="hidden"><div class="question"><div class="direction">Grundform</div><div class="word" id="tableLemma"></div></div><div class="table-scroll" id="tableDisplay"></div><div id="tableQuestion" class="feedback"></div><label for="tableAnswer">Gesuchte Tabellenform</label><input id="tableAnswer" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="hint">Enter = prüfen. Richtige Felder bleiben grün sichtbar; falsche Antworten werden später erneut abgefragt.</div><div id="tableFeedback" class="feedback hidden"></div></div>
+<div class="progress"><div id="progressBar"></div></div>
+
+<div id="typingArea">
+
+<div class="question">
+
+<div class="direction" id="directionText">Übersetze</div>
+
+<div class="word" id="questionWord"></div>
+
+</div>
+
+<div id="answerFields" class="answer-grid"></div>
+
+<div class="hint" id="keyboardHint">Enter = prüfen</div>
+
+<div id="feedback" class="feedback hidden"></div>
+
+<div id="editSolution" class="hidden">
+
+<label for="solutionEditor">Erwartete Lösung bearbeiten</label>
+
+<textarea id="solutionEditor" style="min-height:100px"></textarea>
+
+<div class="button-row"><button class="secondary" id="applySolutionBtn">Lösung übernehmen</button></div>
+
+</div>
+
+</div>
+
+<div id="cardsArea" class="hidden">
+
+<div class="question"><div class="direction">Karte umdrehen</div></div>
+
+<div class="card-word" id="cardWord"></div>
+
+<div class="hint" id="cardHint" style="text-align:center">Lösung anzeigen</div>
+
+<div class="button-row" style="justify-content:center">
+
+<button class="secondary" id="flipBtn">Lösung anzeigen</button>
+
+</div>
+
+<div class="button-row hidden" id="cardDecision">
+
+<button id="cardCorrect">Richtig</button>
+
+<button id="cardWrong" style="background:var(--red)">Falsch</button>
+
+</div>
+
+</div>
+
+<div id="tableArea" class="hidden">
+
+<div class="question">
+
+<div class="direction">Grundform</div>
+
+<div class="word" id="tableLemma"></div>
+
+</div>
+
+<div class="table-scroll" id="tableDisplay"></div>
+
+<div id="tableQuestion" class="feedback"></div>
+
+<label for="tableAnswer">Gesuchte Tabellenform</label>
+
+<input id="tableAnswer" autocomplete="off" autocapitalize="off" spellcheck="false">
+
+<div class="hint">Enter = prüfen. Richtige Felder bleiben grün sichtbar; falsche Antworten werden später erneut abgefragt.</div>
+
+<div id="tableFeedback" class="feedback hidden"></div>
+
+</div>
 
 </section>
 
-<section class="panel hidden" id="endPanel"><h2>Einheit beendet</h2><p id="endMessage"></p><button id="restartBtn">Zurück zur Auswahl</button></section>
+<section class="panel hidden" id="endPanel">
+
+<h2>Einheit beendet</h2>
+
+<p id="endMessage"></p>
+
+<button id="restartBtn">Zurück zur Auswahl</button>
+
+</section>
 
 </main>
 
@@ -168,7 +474,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 
 "use strict";
 
-const $=id=>document.getElementById(id), KEY="ltrain2k-library-v1";
+const $=id=>document.getElementById(id),KEY="ltrain2k-library-v1";
 
 const PROMPT=`Du bist ein sorgfältiger Assistent zur wortgetreuen Übertragung lateinischer Vokabelseiten aus Schulbüchern.
 
@@ -178,7 +484,7 @@ Lies alle fett gedruckten lateinischen Stichwörter links sowie die zugehörigen
 
 WICHTIG: LATEINISCHE LÄNGENZEICHEN (MAKRONS)
 
-Lateinbücher markieren lange Vokale häufig mit einem waagerechten Strich über dem Buchstaben: ā, ē, ī, ō, ū, ȳ. Das ist ein Makron, kein deutscher Umlaut und kein Akzent. Er gehört zum Buchstaben und muss korrekt erkannt und erhalten werden. Achte besonders auf ō/ó, ī/í, ū/ú sowie auf kleine oder blasse Striche, die beim Fotografieren leicht verschwinden. Schreibe z. B. nōscere, nōscō, nōvī oder cōnspicere, wenn die Vorlage diese Makrons zeigt. Verwechsle Makrons nicht mit Punkten über ä/ö/ü. Wenn ein Makron nicht sicher erkennbar ist, kennzeichne die Stelle in einer separaten Unsicherheitsliste statt zu raten. Erfinde keine Makrons, die nicht sichtbar sind.
+Lateinbücher markieren lange Vokale häufig mit einem waagerechten Strich über dem Buchstaben: ā, ē, ī, ō, ū, ȳ. Das ist ein Makron, kein deutscher Umlaut und kein Akzent. Es gehört zum Buchstaben und muss korrekt erkannt und erhalten werden. Achte besonders auf ō/ó, ī/í, ū/ú sowie auf kleine oder blasse Striche, die beim Fotografieren leicht verschwinden. Schreibe z. B. nōscere, nōscō, nōvī oder cōnspicere, wenn die Vorlage diese Makrons zeigt. Verwechsle Makrons nicht mit Punkten über ä/ö/ü. Wenn ein Makron nicht sicher erkennbar ist, kennzeichne die Stelle in einer separaten Unsicherheitsliste statt zu raten. Erfinde keine Makrons, die nicht sichtbar sind.
 
 AUSGABEFORMAT
 
@@ -220,277 +526,1071 @@ Gib nach dem TXT-Block separat eine Liste unsicherer/unleserlicher Stellen aus.`
 
 $("aiPrompt").value=PROMPT;
 
-let library=[],deckId=null,vocab=[],queue=[],current=null,mode="typing",attempt=0,maxAttempts=1,checked=false,fields=[],total=0,correct=0,wrong=0,startTime=0,timer=null,cardFlipped=false,tableTask=null,currentHadError=false;
+let library=[],deckId=null,vocab=[],queue=[],current=null,mode="typing";
+
+let attempt=0,maxAttempts=1,checked=false,fields=[],total=0,correct=0,wrong=0;
+
+let startTime=0,timer=null,cardFlipped=false,tableTask=null;
+
+let currentHadError=false,awaitingAdvance=false,currentFieldIndex=-1;
 
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 
 const stamp=()=>new Date().toLocaleString("de-DE");
 
-// Makrons werden nur beim Vergleichen ignoriert.
+// Makrons werden beim Vergleich ignoriert.
 
-// Die Originalschreibweise bleibt in der Vokabeldatei erhalten.
+// Die Originalschreibweise bleibt erhalten.
 
 const norm=s=>String(s??"").trim().toLocaleLowerCase("de-DE")
 
- .normalize("NFD").replace(/[\u0304]/g,"")
+.normalize("NFD").replace(/[\u0304]/g,"")
 
- .replace(/[.,!?;:]/g,"").replace(/\s+/g," ").normalize("NFC");
+.replace(/[.,!?;:]/g,"").replace(/\s+/g," ").normalize("NFC");
 
 function parseText(text){
 
- const entries=[],tables=[];
+const entries=[],tables=[];
 
- text.split(/\r?\n/).forEach(line=>{let s=line.trim();if(!s||s.startsWith("#"))return;
+text.split(/\r?\n/).forEach(line=>{
 
-  if(s.startsWith("!tabverb|")){let p=s.split("|");if(p.length>=4)tables.push({lemma:p[1].trim(),label:p[2].trim(),form:p.slice(3).join("|").trim()});return}
+let s=line.trim();
 
-  let p=s.split("|");if(p.length<2)return;let forms=p[0].split(",").map(x=>x.trim()).filter(Boolean),meanings=p[1].split(";").map(x=>x.trim()).filter(Boolean),type=(p[2]||"other").trim().toLowerCase();
+if(!s||s.startsWith("#"))return;
 
-  if(forms.length&&meanings.length)entries.push({id:uid(),forms,meanings,type,raw:s});
+if(s.startsWith("!tabverb|")){
 
- });
+let p=s.split("|");
 
- return {entries,tables};
+if(p.length>=4)tables.push({lemma:p[1].trim(),label:p[2].trim(),form:p.slice(3).join("|").trim()});
+
+return;
 
 }
 
-function saveLib(){try{localStorage.setItem(KEY,JSON.stringify(library))}catch(e){alert("Lokaler Speicher voll. Bitte ältere Listen entfernen.")}}
+let p=s.split("|");
+
+if(p.length<2)return;
+
+let forms=p[0].split(",").map(x=>x.trim()).filter(Boolean);
+
+let meanings=p[1].split(";").map(x=>x.trim()).filter(Boolean);
+
+let type=(p[2]||"other").trim().toLowerCase();
+
+if(forms.length&&meanings.length)entries.push({id:uid(),forms,meanings,type,raw:s});
+
+});
+
+return {entries,tables};
+
+}
+
+function saveLib(){
+
+try{localStorage.setItem(KEY,JSON.stringify(library))}
+
+catch(e){alert("Lokaler Speicher voll. Bitte ältere Listen entfernen.")}
+
+}
 
 function selected(){return library.find(x=>x.id===deckId)}
 
-function saveDeck(name,text){let parsed=parseText(text);if(!parsed.entries.length&&!parsed.tables.length){alert("Keine gültigen Vokabeln oder Tabellenzeilen gefunden.");return false}
+function saveDeck(name,text){
 
- let d=selected();if(d){d.name=name||d.name;d.text=text;d.updated=stamp()}else{d={id:uid(),name:name||"Vokabelliste",text,created:stamp(),runs:[]};library.unshift(d)}
+let parsed=parseText(text);
 
- deckId=d.id;vocab=parsed.entries;saveLib();renderHistory();status();return true}
+if(!parsed.entries.length&&!parsed.tables.length){
 
-function status(){$("listStatus").textContent=vocab.length+" Vokabeleinträge bereit."}
+alert("Keine gültigen Vokabeln oder Tabellenzeilen gefunden.");
 
-function selectDeck(id){let d=library.find(x=>x.id===id);if(!d)return;deckId=id;$("vocabText").value=d.text;vocab=parseText(d.text).entries;renderHistory();status()}
+return false;
 
-function renderHistory(){let c=$("historyList");c.replaceChildren();if(!library.length){c.textContent="Noch keine gespeicherten Listen.";return}
+}
 
- library.forEach(d=>{let b=document.createElement("button");b.className="history-item"+(d.id===deckId?" active":"");let a=document.createElement("span"),strong=document.createElement("strong"),small=document.createElement("small"),r=document.createElement("span");strong.textContent=d.name;small.textContent=d.updated?"Aktualisiert: "+d.updated:"Erstellt: "+d.created;r.textContent=parseText(d.text).entries.length+" Wörter";a.append(strong,small);b.append(a,r);b.onclick=()=>selectDeck(d.id);c.append(b)})}
+let d=selected();
+
+if(d){
+
+d.name=name||d.name;d.text=text;d.updated=stamp();
+
+}else{
+
+d={id:uid(),name:name||"Vokabelliste",text,created:stamp(),runs:[]};
+
+library.unshift(d);
+
+}
+
+deckId=d.id;vocab=parsed.entries;saveLib();renderHistory();status();
+
+return true;
+
+}
+
+function status(){
+
+$("listStatus").textContent=vocab.length+" Vokabeleinträge bereit.";
+
+}
+
+function selectDeck(id){
+
+let d=library.find(x=>x.id===id);
+
+if(!d)return;
+
+deckId=id;$("vocabText").value=d.text;
+
+vocab=parseText(d.text).entries;renderHistory();status();
+
+}
+
+function renderHistory(){
+
+let c=$("historyList");
+
+c.replaceChildren();
+
+if(!library.length){
+
+c.textContent="Noch keine gespeicherten Listen.";
+
+return;
+
+}
+
+library.forEach(d=>{
+
+let b=document.createElement("button");
+
+b.className="history-item"+(d.id===deckId?" active":"");
+
+let a=document.createElement("span");
+
+let strong=document.createElement("strong");
+
+let small=document.createElement("small");
+
+let r=document.createElement("span");
+
+strong.textContent=d.name;
+
+small.textContent=d.updated?"Aktualisiert: "+d.updated:"Erstellt: "+d.created;
+
+r.textContent=parseText(d.text).entries.length+" Wörter";
+
+a.append(strong,small);b.append(a,r);
+
+b.onclick=()=>selectDeck(d.id);
+
+c.append(b);
+
+});
+
+}
 
 $("loadTextBtn").onclick=()=>saveDeck(selected()?.name||"Latein "+stamp(),$("vocabText").value);
 
-$("vocabText").addEventListener("input",()=>{vocab=parseText($("vocabText").value).entries;status()});
+$("vocabText").addEventListener("input",()=>{
 
-$("saveTextBtn").onclick=()=>{let text=$("vocabText").value;if(!text.trim()){alert("Textfeld ist leer.");return}let suggested=(selected()?.name||"Latein-Vokabeln").replace(/[\\/:*?"<>|]/g,"_");let name=prompt("Dateiname für die TXT-Datei:",suggested);if(name===null)return;name=name.trim()||suggested;if(!name.toLowerCase().endsWith(".txt"))name+=".txt";let blob=new Blob(["\uFEFF",text],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+vocab=parseText($("vocabText").value).entries;status();
 
-$("importBtn").onclick=()=>$("fileInput").click();
+});
 
-$("fileInput").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{$("vocabText").value=await f.text();deckId=null;saveDeck(f.name,$("vocabText").value)}catch(err){alert("Datei konnte nicht gelesen werden.")}e.target.value=""};
+$("saveTextBtn").onclick=()=>{
 
-$("copyPromptBtn").onclick=async()=>{let s=$("copyPromptStatus");try{await navigator.clipboard.writeText(PROMPT);s.textContent="Prompt kopiert."}catch(e){$("aiPrompt").select();s.textContent="Bitte den markierten Prompt manuell kopieren."}};
+let text=$("vocabText").value;
 
-document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll("[data-mode]").forEach(x=>x.classList.toggle("selected",x===b))});
+if(!text.trim()){alert("Textfeld ist leer.");return;}
 
-function shuffle(a){let x=[...a];for(let i=x.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]]}return x}
+let suggested=(selected()?.name||"Latein-Vokabeln").replace(/[\\/:*?"<>|]/g,"_");
 
-function updateStats(){$("totalStat").textContent=total;$("correctStat").textContent=correct+" · "+(total?Math.round(correct/total*100):0)+"%";$("wrongStat").textContent=wrong+" · "+(total?Math.round(wrong/total*100):0)+"%";let s=Math.floor((Date.now()-startTime)/1000);$("timeStat").textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+let name=prompt("Dateiname für die TXT-Datei:",suggested);
 
-function start(){let text=$("vocabText").value,p=parseText(text);if(!p.entries.length&&!p.tables.length){alert("Bitte zuerst eine Vokabelliste laden.");return}if(!selected()||selected().text!==text){if(!saveDeck(selected()?.name||"Latein "+stamp(),text))return}vocab=parseText(text).entries;maxAttempts=+$("attempts").value;queue=[];
+if(name===null)return;
 
- if(mode==="typing"||mode==="cards")queue=shuffle(vocab);
+name=name.trim()||suggested;
 
- if(mode==="verbs")queue=shuffle(vocab.filter(x=>x.type==="verb"&&x.forms.length>1));
+if(!name.toLowerCase().endsWith(".txt"))name+=".txt";
 
- if(mode==="nomadj")queue=shuffle(vocab.filter(x=>["noun","adj","pron"].includes(x.type)&&x.forms.length>1));
+let blob=new Blob(["\uFEFF",text],{type:"text/plain;charset=utf-8"});
 
- if(mode==="tabellarium"){let groups={};p.tables.forEach(t=>(groups[t.lemma]??=[]).push(t));queue=shuffle(Object.entries(groups).flatMap(([lemma,rows])=>rows.map(r=>({lemma,rows,task:r}))));}
+let url=URL.createObjectURL(blob),a=document.createElement("a");
 
- if(!queue.length){alert(mode==="verbs"?"Keine Verben mit Zusatzformen (Typ verb) gefunden.":mode==="nomadj"?"Keine Nomen/Adjektive/Pronomen mit Zusatzformen gefunden.":"Für diesen Modus wurden keine passenden Einträge gefunden.");return}
+a.href=url;a.download=name;a.click();
 
- total=correct=wrong=0;startTime=Date.now();$("setupPanel").classList.add("hidden");$("endPanel").classList.add("hidden");$("learningPanel").classList.remove("hidden");$("statsPanel").classList.remove("hidden");
-
- $("typingArea").classList.toggle("hidden",!["typing","verbs","nomadj"].includes(mode));$("cardsArea").classList.toggle("hidden",mode!=="cards");$("tableArea").classList.toggle("hidden",mode!=="tabellarium");
-
- clearInterval(timer);timer=setInterval(updateStats,1000);next()}
-
-function next(){if(!queue.length){finish();return}current=queue.shift();attempt=0;checked=false;cardFlipped=false;
-
- $("progressText").textContent="Noch "+(queue.length+1)+" Abfrage(n)";$("progressBar").style.width=((vocab.length-queue.length)/Math.max(vocab.length,queue.length+1)*100)+"%";
-
- if(mode==="cards"){let e=current;$("cardWord").textContent=e.forms[0];$("cardHint").textContent="Lösung aufdecken";$("flipBtn").classList.remove("hidden");$("flipBtn").textContent="Lösung anzeigen";$("cardDecision").classList.add("hidden")}
-
- else if(mode==="tabellarium")setupTable();
-
- else setupTyping()}
-
-function setupTyping(){
-
- let e=current,targets=[],question="",direction="";
-
- if(mode==="typing"){question=e.forms.join(", ");targets=e.meanings;direction="Gib alle deutschen Bedeutungen einzeln ein. Nach jeder Antwort geht es zur nächsten Bedeutung."}
-
- if(mode==="verbs"){question=e.forms[0];targets=e.forms.slice(1);direction="Ergänze die weiteren Verbformen in der angegebenen Reihenfolge."}
-
- if(mode==="nomadj"){question=e.forms[0];targets=e.forms.slice(1);direction="Gib die weiteren lateinischen Formen in der angegebenen Reihenfolge ein."}
-
- current.targets=targets;currentHadError=false;$("questionWord").textContent=question;$("directionText").textContent=direction;
-
- let box=$("answerFields");box.replaceChildren();fields=[];
-
- targets.forEach((t,i)=>{
-
-  let wrap=document.createElement("div"),lab=document.createElement("label"),inp=document.createElement("input"),result=document.createElement("div");
-
-  lab.textContent=(mode==="typing"?"Bedeutung ":"Form ")+(i+1)+" von "+targets.length;
-
-  inp.type="text";inp.autocomplete="off";inp.autocapitalize="off";inp.spellcheck=false;inp.dataset.index=i;inp.disabled=i!==0;
-
-  inp.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();checkTyping(i)}});
-
-  result.className="meaning-result hidden";
-
-  wrap.append(lab,inp,result);box.append(wrap);fields.push({input:inp,result,target:t,done:false});
-
- });
-
- $("feedback").className="feedback hidden";$("feedback").replaceChildren();$("editSolution").classList.add("hidden");
-
- $("keyboardHint").textContent="Enter = aktuelle Bedeutung prüfen; danach geht es automatisch weiter.";
-
- if(fields[0])fields[0].input.focus();
-
-}
-
-function comparisonHTML(input,target){
-
- let box=document.createElement("div");box.className="comparison";
-
- function side(label,value,isUser){
-
-  let side=document.createElement("div"),caption=document.createElement("div"),word=document.createElement("div");
-
-  side.className="compare-box";caption.className="compare-label";caption.textContent=label;word.className="compare-word";
-
-  for(let i=0;i<value.length;i++){
-
-   let span=document.createElement("span");span.textContent=value[i];
-
-   if(isUser){let expected=target[i]||"";if(norm(value[i])===norm(expected)&&i<target.length)span.className="good-letter";else span.className="bad-letter";}
-
-   word.append(span);
-
-  }
-
-  side.append(caption,word);return side;
-
- }
-
- box.append(side("Richtige Schreibweise",target,false),side("Deine Eingabe",input,true));return box;
-
-}
-
-function checkTyping(index){
-
- if(checked){next();return}
-
- let item=fields[index];if(!item||item.done)return;
-
- let answer=item.input.value.trim();if(!answer)return;
-
- total++;let good=norm(answer)===norm(item.target);item.done=true;item.input.readOnly=true;
-
- item.result.className="meaning-result "+(good?"correct":"wrong");
-
- item.result.replaceChildren();
-
- let heading=document.createElement("strong");heading.textContent=good?"Richtig!":"Falsch – richtige Lösung:";item.result.append(heading);
-
- if(good){correct++;let detail=document.createElement("div");detail.textContent=item.target;item.result.append(detail)}
-
- else{wrong++;currentHadError=true;item.result.append(comparisonHTML(answer,item.target));if($("editDuring").value==="on"){$("editSolution").classList.remove("hidden");$("solutionEditor").value=current.targets.join("\n");}}
-
- // Fehlerhafte Bedeutung bleibt sichtbar; die nächste Bedeutung wird trotzdem abgefragt.
-
- let nextItem=fields.find((f,i)=>i>index&&!f.done);
-
- if(nextItem){nextItem.input.disabled=false;nextItem.input.focus();$("keyboardHint").textContent="Bedeutung "+(fields.indexOf(nextItem)+1)+" von "+fields.length+" – Enter = prüfen."}
-
- else{
-
-  checked=true;
-
-  if(currentHadError){queue.push(current);$("feedback").className="feedback wrong";$("feedback").textContent="Diese Vokabel wird am Ende der Liste wiederholt. Alle Bedeutungen wurden abgefragt."}
-
-  else{$("feedback").className="feedback correct";$("feedback").textContent="Alle Bedeutungen richtig!"}
-
-  $("keyboardHint").textContent="Enter = nächste Vokabel";
-
-  let last=fields[fields.length-1];if(last)last.input.focus();
-
- }
-
- updateStats();
-
-}
-
-function feedback(good,msg){let b=$("feedback");b.className="feedback "+(good?"correct":"wrong");b.textContent=(good?"RICHTIG! ":"NOCH NICHT RICHTIG. ")+msg;
-
- if(!good&&$("editDuring").value==="on"){$("editSolution").classList.remove("hidden");$("solutionEditor").value=current.targets.join("\n")}}
-
-$("applySolutionBtn").onclick=()=>{
-
- let lines=$("solutionEditor").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-
- if(!lines.length){alert("Mindestens eine Lösung angeben.");return}
-
- current.targets=lines;
-
- if(mode==="typing")current.meanings=lines;else current.forms=[current.forms[0],...lines];
-
- $("editSolution").classList.add("hidden");
-
- if(selected()){
-
-  let deck=selected(),parsed=parseText(deck.text),found=parsed.entries.find(x=>x.forms[0]===current.forms[0]&&x.type===current.type);
-
-  if(found){if(mode==="typing")found.meanings=lines;else found.forms=[found.forms[0],...lines];
-
-   let rawLines=deck.text.split(/\r?\n/),idx=rawLines.findIndex(x=>x.trim()===found.raw);
-
-   if(idx>=0){rawLines[idx]=found.forms.join(", ")+" | "+found.meanings.join("; ")+" | "+found.type;deck.text=rawLines.join("\n");$("vocabText").value=deck.text;saveLib();}
-
-  }
-
- }
-
- setupTyping();
+setTimeout(()=>URL.revokeObjectURL(url),1000);
 
 };
 
-function flip(){if(cardFlipped)return;cardFlipped=true;$("cardWord").textContent=current.meanings.join(" / ")+"\n"+(current.forms.length>1?current.forms.slice(1).join(", "):"");$("cardHint").textContent="Konntest du die Vokabel?";$("flipBtn").classList.add("hidden");$("cardDecision").classList.remove("hidden")}
+$("importBtn").onclick=()=>$("fileInput").click();
 
-$("cardWord").onclick=flip;$("flipBtn").onclick=flip;
+$("fileInput").onchange=async e=>{
 
-function decide(good){if(!cardFlipped)return;total++;if(good)correct++;else{wrong++;queue.push(current)}updateStats();next()}
+let f=e.target.files[0];
 
-$("cardCorrect").onclick=()=>decide(true);$("cardWrong").onclick=()=>decide(false);
+if(!f)return;
 
-function setupTable(){tableTask=current.task;$("tableLemma").textContent=current.lemma;let table=document.createElement("table");table.className="quiz-table";let tr=document.createElement("tr");["Grundform","Tabellenstelle","Form"].forEach(x=>{let th=document.createElement("th");th.textContent=x;tr.append(th)});table.append(tr);
+try{
 
- current.rows.forEach(r=>{let row=document.createElement("tr");[current.lemma,r.label,r.form].forEach((v,i)=>{let td=document.createElement("td");td.textContent=v;if(i===2&&r===tableTask){td.textContent="???";td.className="masked"}row.append(td)});table.append(row)});$("tableDisplay").replaceChildren(table);$("tableQuestion").textContent="Gesucht: "+tableTask.label;$("tableAnswer").value="";$("tableFeedback").className="feedback hidden";$("tableAnswer").disabled=false;$("tableAnswer").focus()}
+$("vocabText").value=await f.text();
 
-function checkTable(){let v=$("tableAnswer").value.trim();if(!v)return;total++;if(norm(v)===norm(tableTask.form)){correct++;$("tableFeedback").className="feedback correct";$("tableFeedback").textContent="Richtig: "+tableTask.form;let cells=$("tableDisplay").querySelectorAll("tr");cells.forEach(row=>{if(row.children[1]?.textContent===tableTask.label){row.children[2].textContent=tableTask.form;row.children[2].className="revealed"}});$("tableAnswer").disabled=true;updateStats();setTimeout(()=>next(),650)}else{wrong++;$("tableFeedback").className="feedback wrong";$("tableFeedback").textContent="Noch nicht richtig. Die Lösung bleibt zunächst verborgen; der Eintrag kommt später erneut.";queue.push(current);$("tableAnswer").value="";$("tableAnswer").focus();updateStats()}}
+deckId=null;saveDeck(f.name,$("vocabText").value);
 
-$("tableAnswer").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();checkTable()}});
+}catch(err){alert("Datei konnte nicht gelesen werden.");}
 
-$("answerFields").addEventListener("keydown",e=>{if(e.key==="Enter"&&checked){e.preventDefault();next()}});
+e.target.value="";
 
-function finish(){clearInterval(timer);updateStats();let d=selected();if(d){d.runs.push({date:stamp(),total,correct,wrong,accuracy:total?Math.round(correct/total*100):0});saveLib()}$("learningPanel").classList.add("hidden");$("endPanel").classList.remove("hidden");$("endMessage").textContent=`Durchlauf abgeschlossen: ${correct} richtige und ${wrong} falsche Antworten.`}
+};
 
-function stop() {clearInterval(timer);$("learningPanel").classList.add("hidden");$("statsPanel").classList.add("hidden");$("endPanel").classList.add("hidden");$("setupPanel").classList.remove("hidden")}
+$("copyPromptBtn").onclick=async()=>{
 
-$("startBtn").onclick=start;$("stopBtn").onclick=stop;$("restartBtn").onclick=stop;
+let s=$("copyPromptStatus");
 
-function load(){try{library=JSON.parse(localStorage.getItem(KEY)||"[]");if(!Array.isArray(library))library=[]}catch(e){library=[]}renderHistory()}
+try{
+
+await navigator.clipboard.writeText(PROMPT);
+
+s.textContent="Prompt kopiert.";
+
+}catch(e){
+
+$("aiPrompt").select();
+
+s.textContent="Bitte den markierten Prompt manuell kopieren.";
+
+}
+
+};
+
+document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{
+
+mode=b.dataset.mode;
+
+document.querySelectorAll("[data-mode]").forEach(x=>x.classList.toggle("selected",x===b));
+
+});
+
+function shuffle(a){
+
+let x=[...a];
+
+for(let i=x.length-1;i>0;i--){
+
+let j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];
+
+}
+
+return x;
+
+}
+
+function updateStats(){
+
+$("totalStat").textContent=total;
+
+$("correctStat").textContent=correct+" · "+(total?Math.round(correct/total*100):0)+"%";
+
+$("wrongStat").textContent=wrong+" · "+(total?Math.round(wrong/total*100):0)+"%";
+
+let s=Math.floor((Date.now()-startTime)/1000);
+
+$("timeStat").textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+
+}
+
+function start(){
+
+let text=$("vocabText").value,p=parseText(text);
+
+if(!p.entries.length&&!p.tables.length){
+
+alert("Bitte zuerst eine Vokabelliste laden.");return;
+
+}
+
+if(!selected()||selected().text!==text){
+
+if(!saveDeck(selected()?.name||"Latein "+stamp(),text))return;
+
+}
+
+vocab=parseText(text).entries;
+
+maxAttempts=+$("attempts").value;
+
+queue=[];
+
+if(mode==="typing"||mode==="cards")queue=shuffle(vocab);
+
+if(mode==="verbs")queue=shuffle(vocab.filter(x=>x.type==="verb"&&x.forms.length>1));
+
+if(mode==="nomadj")queue=shuffle(vocab.filter(x=>["noun","adj","pron"].includes(x.type)&&x.forms.length>1));
+
+if(mode==="tabellarium"){
+
+let groups={};
+
+p.tables.forEach(t=>(groups[t.lemma]??=[]).push(t));
+
+queue=shuffle(Object.entries(groups).flatMap(([lemma,rows])=>rows.map(r=>({lemma,rows,task:r}))));
+
+}
+
+if(!queue.length){
+
+alert(mode==="verbs"?"Keine Verben mit Zusatzformen (Typ verb) gefunden.":mode==="nomadj"?"Keine Nomen/Adjektive/Pronomen mit Zusatzformen gefunden.":"Für diesen Modus wurden keine passenden Einträge gefunden.");
+
+return;
+
+}
+
+total=correct=wrong=0;
+
+startTime=Date.now();
+
+$("setupPanel").classList.add("hidden");
+
+$("endPanel").classList.add("hidden");
+
+$("learningPanel").classList.remove("hidden");
+
+$("statsPanel").classList.remove("hidden");
+
+$("typingArea").classList.toggle("hidden",!["typing","verbs","nomadj"].includes(mode));
+
+$("cardsArea").classList.toggle("hidden",mode!=="cards");
+
+$("tableArea").classList.toggle("hidden",mode!=="tabellarium");
+
+clearInterval(timer);
+
+timer=setInterval(updateStats,1000);
+
+next();
+
+}
+
+function next(){
+
+if(!queue.length){finish();return;}
+
+current=queue.shift();
+
+attempt=0;checked=false;cardFlipped=false;
+
+awaitingAdvance=false;currentFieldIndex=-1;
+
+$("progressText").textContent="Noch "+(queue.length+1)+" Abfrage(n)";
+
+$("progressBar").style.width=((vocab.length-queue.length)/Math.max(vocab.length,queue.length+1)*100)+"%";
+
+if(mode==="cards"){
+
+let e=current;
+
+$("cardWord").textContent=e.forms[0];
+
+$("cardHint").textContent="Lösung aufdecken";
+
+$("flipBtn").classList.remove("hidden");
+
+$("flipBtn").textContent="Lösung anzeigen";
+
+$("cardDecision").classList.add("hidden");
+
+}else if(mode==="tabellarium"){
+
+setupTable();
+
+}else{
+
+setupTyping();
+
+}
+
+}
+
+function setupTyping(){
+
+let e=current,targets=[],question="",direction="";
+
+if(mode==="typing"){
+
+question=e.forms.join(", ");
+
+targets=e.meanings;
+
+direction="Gib alle deutschen Bedeutungen einzeln ein.";
+
+}
+
+if(mode==="verbs"){
+
+question=e.forms[0];
+
+targets=e.forms.slice(1);
+
+direction="Ergänze die weiteren Verbformen in der angegebenen Reihenfolge.";
+
+}
+
+if(mode==="nomadj"){
+
+question=e.forms[0];
+
+targets=e.forms.slice(1);
+
+direction="Gib die weiteren lateinischen Formen in der angegebenen Reihenfolge ein.";
+
+}
+
+current.targets=targets;
+
+currentHadError=false;
+
+awaitingAdvance=false;
+
+checked=false;
+
+currentFieldIndex=-1;
+
+$("questionWord").textContent=question;
+
+$("directionText").textContent=direction;
+
+let box=$("answerFields");
+
+box.replaceChildren();
+
+fields=[];
+
+targets.forEach((t,i)=>{
+
+let wrap=document.createElement("div");
+
+let lab=document.createElement("label");
+
+let inp=document.createElement("input");
+
+let result=document.createElement("div");
+
+lab.textContent=(mode==="typing"?"Bedeutung ":"Form ")+(i+1)+" von "+targets.length;
+
+inp.type="text";
+
+inp.autocomplete="off";
+
+inp.autocapitalize="off";
+
+inp.spellcheck=false;
+
+inp.dataset.index=i;
+
+inp.disabled=i!==0;
+
+inp.addEventListener("keydown",ev=>{
+
+if(ev.key!=="Enter")return;
+
+ev.preventDefault();
+
+if(checked){
+
+next();
+
+return;
+
+}
+
+if(awaitingAdvance){
+
+advanceTyping();
+
+return;
+
+}
+
+checkTyping(i);
+
+});
+
+result.className="meaning-result hidden";
+
+wrap.append(lab,inp,result);
+
+box.append(wrap);
+
+fields.push({input:inp,result,target:t,done:false});
+
+});
+
+$("feedback").className="feedback hidden";
+
+$("feedback").replaceChildren();
+
+$("editSolution").classList.add("hidden");
+
+$("keyboardHint").textContent="Enter = Antwort prüfen.";
+
+if(fields[0])fields[0].input.focus();
+
+}
+
+// Zeigt die richtige und die eingegebene Schreibweise nebeneinander.
+
+function comparisonHTML(input,target){
+
+let box=document.createElement("div");
+
+box.className="comparison";
+
+function side(label,value,isUser){
+
+let side=document.createElement("div");
+
+let caption=document.createElement("div");
+
+let word=document.createElement("div");
+
+side.className="compare-box";
+
+caption.className="compare-label";
+
+caption.textContent=label;
+
+word.className="compare-word";
+
+for(let i=0;i<value.length;i++){
+
+let span=document.createElement("span");
+
+span.textContent=value[i];
+
+if(isUser){
+
+let expected=target[i]||"";
+
+if(norm(value[i])===norm(expected)&&i<target.length){
+
+span.className="good-letter";
+
+}else{
+
+span.className="bad-letter";
+
+}
+
+}
+
+word.append(span);
+
+}
+
+side.append(caption,word);
+
+return side;
+
+}
+
+box.append(
+
+side("Richtige Schreibweise",target,false),
+
+side("Deine Eingabe",input,true)
+
+);
+
+return box;
+
+}
+
+// Prüft eine einzelne Bedeutung/Form.
+
+function checkTyping(index){
+
+if(checked||awaitingAdvance)return;
+
+let item=fields[index];
+
+if(!item||item.done)return;
+
+let answer=item.input.value.trim();
+
+if(!answer)return;
+
+total++;
+
+let good=norm(answer)===norm(item.target);
+
+item.done=true;
+
+item.input.readOnly=true;
+
+item.result.className="meaning-result "+(good?"correct":"wrong");
+
+item.result.replaceChildren();
+
+let heading=document.createElement("strong");
+
+heading.textContent=good?"✓ RICHTIG!":"✗ FALSCH – RICHTIGE LÖSUNG:";
+
+item.result.append(heading);
+
+// Die korrekte Schreibweise wird IMMER angezeigt.
+
+// Auch bei der letzten Bedeutung bleibt sie stehen.
+
+if(good){
+
+correct++;
+
+let detail=document.createElement("div");
+
+detail.style.fontWeight="700";
+
+detail.style.fontSize="17px";
+
+detail.style.marginTop="5px";
+
+detail.textContent=item.target;
+
+item.result.append(detail);
+
+}else{
+
+wrong++;
+
+currentHadError=true;
+
+item.result.append(comparisonHTML(answer,item.target));
+
+}
+
+if(!good&&$("editDuring").value==="on"){
+
+$("editSolution").classList.remove("hidden");
+
+$("solutionEditor").value=current.targets.join("\n");
+
+}
+
+// Nach jeder Antwort wird ausdrücklich auf Enter gewartet.
+
+awaitingAdvance=true;
+
+currentFieldIndex=index;
+
+let nextItem=fields.find((f,i)=>i>index&&!f.done);
+
+if(nextItem){
+
+$("keyboardHint").textContent=
+
+"Antwort gespeichert. Enter = nächste Bedeutung/Form.";
+
+}else{
+
+$("keyboardHint").textContent=
+
+"Letzte Antwort gespeichert. Enter = Abfrage abschließen.";
+
+}
+
+updateStats();
+
+}
+
+// Erst nach einem weiteren Enter wird die nächste Bedeutung freigegeben.
+
+function advanceTyping(){
+
+if(!awaitingAdvance)return;
+
+awaitingAdvance=false;
+
+let nextItem=fields.find((f,i)=>i>currentFieldIndex&&!f.done);
+
+if(nextItem){
+
+nextItem.input.disabled=false;
+
+nextItem.input.readOnly=false;
+
+nextItem.input.focus();
+
+$("keyboardHint").textContent=
+
+"Bedeutung/Form "+(fields.indexOf(nextItem)+1)+" von "+fields.length+" – Enter = prüfen.";
+
+return;
+
+}
+
+// Alle Bedeutungen sind abgearbeitet.
+
+// Fehlerhafte Vokabeln kommen am Ende erneut.
+
+checked=true;
+
+if(currentHadError){
+
+queue.push(current);
+
+$("feedback").className="feedback wrong";
+
+$("feedback").textContent="Diese Vokabel wird am Ende der Liste wiederholt. Die richtige Schreibweise bleibt oben sichtbar.";
+
+}else{
+
+$("feedback").className="feedback correct";
+
+$("feedback").textContent="Alle Bedeutungen richtig!";
+
+}
+
+$("keyboardHint").textContent="Enter = nächste Vokabel";
+
+// Die Ergebnisse bleiben bis zum nächsten Tastendruck sichtbar.
+
+let last=fields[fields.length-1];
+
+if(last)last.input.focus();
+
+}
+
+function feedback(good,msg){
+
+let b=$("feedback");
+
+b.className="feedback "+(good?"correct":"wrong");
+
+b.textContent=(good?"RICHTIG! ":"NOCH NICHT RICHTIG. ")+msg;
+
+if(!good&&$("editDuring").value==="on"){
+
+$("editSolution").classList.remove("hidden");
+
+$("solutionEditor").value=current.targets.join("\n");
+
+}
+
+}
+
+$("applySolutionBtn").onclick=()=>{
+
+let lines=$("solutionEditor").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+
+if(!lines.length){
+
+alert("Mindestens eine Lösung angeben.");return;
+
+}
+
+current.targets=lines;
+
+if(mode==="typing")current.meanings=lines;
+
+else current.forms=[current.forms[0],...lines];
+
+$("editSolution").classList.add("hidden");
+
+if(selected()){
+
+let deck=selected();
+
+let parsed=parseText(deck.text);
+
+let found=parsed.entries.find(x=>x.forms[0]===current.forms[0]&&x.type===current.type);
+
+if(found){
+
+if(mode==="typing")found.meanings=lines;
+
+else found.forms=[found.forms[0],...lines];
+
+let rawLines=deck.text.split(/\r?\n/);
+
+let idx=rawLines.findIndex(x=>x.trim()===found.raw);
+
+if(idx>=0){
+
+rawLines[idx]=found.forms.join(", ")+" | "+found.meanings.join("; ")+" | "+found.type;
+
+deck.text=rawLines.join("\n");
+
+$("vocabText").value=deck.text;
+
+saveLib();
+
+}
+
+}
+
+}
+
+setupTyping();
+
+};
+
+// Karteikarten
+
+function flip(){
+
+if(cardFlipped)return;
+
+cardFlipped=true;
+
+$("cardWord").textContent=current.meanings.join(" / ")+"\n"+(current.forms.length>1?current.forms.slice(1).join(", "):"");
+
+$("cardHint").textContent="Konntest du die Vokabel?";
+
+$("flipBtn").classList.add("hidden");
+
+$("cardDecision").classList.remove("hidden");
+
+}
+
+$("cardWord").onclick=flip;
+
+$("flipBtn").onclick=flip;
+
+function decide(good){
+
+if(!cardFlipped)return;
+
+total++;
+
+if(good)correct++;
+
+else{wrong++;queue.push(current);}
+
+updateStats();
+
+next();
+
+}
+
+$("cardCorrect").onclick=()=>decide(true);
+
+$("cardWrong").onclick=()=>decide(false);
+
+// Tabellarium
+
+function setupTable(){
+
+tableTask=current.task;
+
+$("tableLemma").textContent=current.lemma;
+
+let table=document.createElement("table");
+
+table.className="quiz-table";
+
+let tr=document.createElement("tr");
+
+["Grundform","Tabellenstelle","Form"].forEach(x=>{
+
+let th=document.createElement("th");
+
+th.textContent=x;
+
+tr.append(th);
+
+});
+
+table.append(tr);
+
+current.rows.forEach(r=>{
+
+let row=document.createElement("tr");
+
+[current.lemma,r.label,r.form].forEach((v,i)=>{
+
+let td=document.createElement("td");
+
+td.textContent=v;
+
+if(i===2&&r===tableTask){
+
+td.textContent="???";
+
+td.className="masked";
+
+}
+
+row.append(td);
+
+});
+
+table.append(row);
+
+});
+
+$("tableDisplay").replaceChildren(table);
+
+$("tableQuestion").textContent="Gesucht: "+tableTask.label;
+
+$("tableAnswer").value="";
+
+$("tableFeedback").className="feedback hidden";
+
+$("tableAnswer").disabled=false;
+
+$("tableAnswer").focus();
+
+}
+
+function checkTable(){
+
+let v=$("tableAnswer").value.trim();
+
+if(!v)return;
+
+total++;
+
+if(norm(v)===norm(tableTask.form)){
+
+correct++;
+
+$("tableFeedback").className="feedback correct";
+
+$("tableFeedback").textContent="Richtig: "+tableTask.form;
+
+let cells=$("tableDisplay").querySelectorAll("tr");
+
+cells.forEach(row=>{
+
+if(row.children[1]?.textContent===tableTask.label){
+
+row.children[2].textContent=tableTask.form;
+
+row.children[2].className="revealed";
+
+}
+
+});
+
+$("tableAnswer").disabled=true;
+
+updateStats();
+
+setTimeout(()=>next(),650);
+
+}else{
+
+wrong++;
+
+$("tableFeedback").className="feedback wrong";
+
+$("tableFeedback").textContent="Noch nicht richtig. Die Lösung bleibt zunächst verborgen; der Eintrag kommt später erneut.";
+
+queue.push(current);
+
+$("tableAnswer").value="";
+
+$("tableAnswer").focus();
+
+updateStats();
+
+}
+
+}
+
+$("tableAnswer").addEventListener("keydown",e=>{
+
+if(e.key==="Enter"){
+
+e.preventDefault();
+
+checkTable();
+
+}
+
+});
+
+// Abschluss
+
+function finish(){
+
+clearInterval(timer);
+
+updateStats();
+
+let d=selected();
+
+if(d){
+
+d.runs.push({
+
+date:stamp(),
+
+total,correct,wrong,
+
+accuracy:total?Math.round(correct/total*100):0
+
+});
+
+saveLib();
+
+}
+
+$("learningPanel").classList.add("hidden");
+
+$("endPanel").classList.remove("hidden");
+
+$("endMessage").textContent=
+
+`Durchlauf abgeschlossen: ${correct} richtige und ${wrong} falsche Antworten.`;
+
+}
+
+function stop(){
+
+clearInterval(timer);
+
+$("learningPanel").classList.add("hidden");
+
+$("statsPanel").classList.add("hidden");
+
+$("endPanel").classList.add("hidden");
+
+$("setupPanel").classList.remove("hidden");
+
+}
+
+$("startBtn").onclick=start;
+
+$("stopBtn").onclick=stop;
+
+$("restartBtn").onclick=stop;
+
+function load(){
+
+try{
+
+library=JSON.parse(localStorage.getItem(KEY)||"[]");
+
+if(!Array.isArray(library))library=[];
+
+}catch(e){
+
+library=[];
+
+}
+
+renderHistory();
+
+}
 
 load();
 
-if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) { navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){
+
+navigator.serviceWorker.register("./sw.js").catch(()=>{});
+
+}
 
 })();
 
