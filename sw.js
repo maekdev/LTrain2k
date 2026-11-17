@@ -1,11 +1,11 @@
 
-const CACHE = "ltrain2k-v141";
+const CACHE = "ltrain2k-v1";
 
 const FILES = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./icon.svg"
+  "./apple-touch-icon.png"
 ];
 
 // Installation und Zwischenspeicherung
@@ -25,7 +25,7 @@ self.addEventListener("activate", event => {
     caches.keys().then(keys =>
       Promise.all(
         keys
-          .filter(k => k !== CACHE)
+          .filter(k => k.startsWith("ltrain2k-") && k !== CACHE)
           .map(k => caches.delete(k))
       )
     )
