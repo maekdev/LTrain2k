@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#71330f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="LTrain2k">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.json">
 <title>Latein-Trainer – LTrain2k</title>
 
@@ -68,6 +68,7 @@ button.selected{background:var(--orange);color:white;outline:2px solid var(--ora
 .history-child{display:flex;align-items:center;gap:7px}
 .history-child .history-item{background:#fffaf6}
 .history-child .history-item:before{content:"↳";color:var(--muted);margin-right:3px}
+.history-stats{display:block;color:var(--muted);font-size:11px;font-weight:400;line-height:1.5;margin-top:4px}
 .split-box{background:#fffaf6;border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:15px}
 .split-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
 .split-controls label{margin-top:0}
@@ -132,13 +133,13 @@ button{padding:12px 13px}
 <a href="https://github.com/maekdev/LTrain2k" target="_blank" rel="noopener noreferrer">Quellcode</a>
 <a href="https://maekdev.github.io/LTrain2k" target="_blank" rel="noopener noreferrer">Programm-Website</a>
 </div>
-<span class="header-version" id="versionButton" title="Verstecktes Menü">v129</span>
+<span class="header-version" id="versionButton" title="Verstecktes Menü">v130</span>
 </header>
 
 <div id="hiddenMenu" class="hidden" style="position:fixed;inset:0;z-index:1000;background:#0008;align-items:center;justify-content:center;padding:20px">
 <div style="background:white;border-radius:16px;padding:22px;width:min(360px,100%);box-shadow:0 8px 35px #0004">
 <h2 style="margin-top:0">LTrain2k – Menü</h2>
-<p style="font-size:14px;color:#806f63">Version v129</p>
+<p style="font-size:14px;color:#806f63">Version v130</p>
 <button id="resetCacheBtn" style="background:#b8322b;width:100%">Cache zurücksetzen</button>
 <p style="font-size:12px;color:#806f63;line-height:1.5">Löscht gespeicherte Vokabellisten, die Historie und Offline-Cachedaten dieser App.</p>
 <button class="secondary" id="closeHiddenMenu" style="width:100%">Schließen</button>
@@ -185,10 +186,10 @@ button{padding:12px 13px}
 
 <div class="split-box">
 <h3 style="margin-top:0">✂️ Teile Vokabeldatei</h3>
-<p class="hint">Erstellt aus der ausgewählten Hauptdatei kleinere Lerneinheiten. Gezählt werden die einzelnen Abfragen – nicht die Anzahl der Vokabeleinträge. Eine Vokabel mit drei Bedeutungen zählt also als drei Abfragen.</p>
+<p class="hint">Die gewünschte Anzahl bezieht sich auf einzelne Bedeutungs-Abfragen. Ein Vokabeleintrag wird aber niemals auf mehrere Einheiten verteilt: Hat ein Wort drei Bedeutungen, bleiben alle drei zusammen. Deshalb kann eine Einheit die eingestellte Anzahl überschreiten.</p>
 <div class="split-controls">
 <div>
-<label for="splitSize">Abfragen pro Einheit</label>
+<label for="splitSize">Maximale Abfragen pro Einheit (Richtwert)</label>
 <select id="splitSize">
 <option value="10" selected>10 Abfragen</option>
 <option value="12">12 Abfragen</option>
@@ -202,7 +203,7 @@ button{padding:12px 13px}
 </div>
 
 <h3>Historie und Vokabellisten</h3>
-<div class="hint">Die Hauptdatei enthält immer den vollständigen Originalbestand. Darunter findest du die daraus erzeugten Lerneinheiten. Jede Liste kann umbenannt oder gelöscht werden.</div>
+<div class="hint">Die Hauptdatei enthält immer den vollständigen Originalbestand. Darunter findest du die daraus erzeugten Lerneinheiten. Jede Liste kann umbenannt oder gelöscht werden. Die Statistik hilft dir bei der Auswahl des passenden Lernmodus.</div>
 <div id="historyList" class="history-list"><div class="hint">Noch keine gespeicherten Listen.</div></div>
 
 <div class="step-heading" style="margin-top:24px"><span class="step-number">3</span><h2>Lernmodus wählen</h2></div>
@@ -383,7 +384,12 @@ let s=line.trim();
 if(!s||s.startsWith("#"))return;
 if(s.startsWith("!tabverb|")){
 let p=s.split("|");
-if(p.length>=4)tables.push({lemma:p[1].trim(),label:p[2].trim(),form:p.slice(3).join("|").trim()});
+if(p.length>=4)tables.push({
+lemma:p[1].trim(),
+label:p[2].trim(),
+form:p.slice(3).join("|").trim(),
+raw:s
+});
 return;
 }
 let p=s.split("|");
@@ -396,14 +402,49 @@ if(forms.length&&meanings.length)entries.push({id:uid(),forms,meanings,type,raw:
 return {entries,tables};
 }
 
+/* Statistik einer Liste:
+   Gesamt = alle möglichen Einzelabfragen in den jeweiligen Lernmodi.
+   Bedeutungen = Eingabemodus.
+   Verbformen = zusätzliche Formen im Verbenmodus.
+   Nomen/Adj. = zusätzliche Formen im Nomen-/Adjektivmodus.
+   Tabellarium = einzelne Tabellenzellen.
+*/
+function getDeckStats(text){
+let p=parseText(text);
+let meanings=p.entries.reduce((n,e)=>n+e.meanings.length,0);
+let verbs=p.entries
+.filter(e=>e.type==="verb")
+.reduce((n,e)=>n+Math.max(0,e.forms.length-1),0);
+let nomadj=p.entries
+.filter(e=>["noun","adj","pron"].includes(e.type))
+.reduce((n,e)=>n+Math.max(0,e.forms.length-1),0);
+let tables=p.tables.length;
+return{
+entries:p.entries.length,
+meanings,
+verbs,
+nomadj,
+tables,
+total:meanings+verbs+nomadj+tables
+};
+}
+
+function statsText(text){
+let s=getDeckStats(text);
+return s.total+" Abfragen gesamt · "+s.meanings+" Bedeutungen · "+
+s.verbs+" Verbformen · "+s.nomadj+" Nomen/Adj.-Formen · "+
+s.tables+" Tabellarium";
+}
+
 function saveLib(){
 try{localStorage.setItem(KEY,JSON.stringify(library))}
 catch(e){alert("Lokaler Speicher voll. Bitte ältere Listen entfernen.")}
 }
 function selected(){return library.find(x=>x.id===deckId)}
 function isChild(d){return !!d?.parentId}
+
 function queryCount(text){
-return parseText(text).entries.reduce((n,e)=>n+e.meanings.length,0);
+return getDeckStats(text).total;
 }
 
 function saveDeck(name,text){
@@ -437,8 +478,16 @@ return true;
 }
 
 function status(){
-let d=selected(),count=vocab.reduce((sum,e)=>sum+e.meanings.length,0);
-$("listStatus").textContent=vocab.length+" Vokabeleinträge · "+count+" Bedeutungs-Abfragen bereit."+(d&&isChild(d)?" (Teilliste)":"");
+let d=selected(),s=getDeckStats($("vocabText").value);
+if(!s.entries&&!s.tables){
+$("listStatus").textContent="Noch keine gültigen Vokabeln geladen.";
+return;
+}
+$("listStatus").textContent=
+s.entries+" Vokabeleinträge · "+s.total+" Abfragen insgesamt. "+
+"Bedeutungen: "+s.meanings+" · Verbformen: "+s.verbs+
+" · Nomen/Adj.: "+s.nomadj+" · Tabellarium: "+s.tables+
+(d&&isChild(d)?" (Teilliste)":"");
 }
 
 function selectDeck(id){
@@ -507,16 +556,25 @@ entry.className="history-entry";
 let b=document.createElement("button");
 b.type="button";
 b.className="history-item"+(d.id===deckId?" active":"");
+
 let left=document.createElement("span");
 left.className="history-main";
+
 let title=document.createElement("strong");
 let date=document.createElement("small");
+let stats=document.createElement("small");
 let right=document.createElement("span");
 
 title.textContent=(isChildEntry?"":"📁 ")+d.name;
-date.textContent=(d.updated?"Aktualisiert: "+d.updated:"Erstellt: "+d.created)+(isChildEntry?" · Einheit "+d.partNumber+" von "+d.partCount:" · Hauptdatei");
+date.textContent=(d.updated?"Aktualisiert: "+d.updated:"Erstellt: "+d.created)+
+(isChildEntry?" · Einheit "+d.partNumber+" von "+d.partCount:" · Hauptdatei");
+
+stats.className="history-stats";
+stats.textContent=statsText(d.text);
+
 right.textContent=queryCount(d.text)+" Abfragen";
-left.append(title,date);
+
+left.append(title,date,stats);
 b.append(left,right);
 b.onclick=()=>selectDeck(d.id);
 
@@ -555,7 +613,8 @@ let bases=library.filter(d=>!isChild(d));
 bases.forEach(d=>{
 let wrapper=document.createElement("div");
 wrapper.append(makeHistoryEntry(d,false));
-let children=library.filter(x=>x.parentId===d.id).sort((a,b)=>(a.partNumber||0)-(b.partNumber||0));
+let children=library.filter(x=>x.parentId===d.id)
+.sort((a,b)=>(a.partNumber||0)-(b.partNumber||0));
 if(children.length){
 let childBox=document.createElement("div");
 childBox.className="history-children";
@@ -576,45 +635,121 @@ if(isChild(d)){
 $("splitStatus").textContent="Aktuell ist eine Teileinheit ausgewählt. Wähle zuerst die Hauptdatei aus, um sie neu aufzuteilen.";
 btn.disabled=true;return;
 }
-let count=queryCount(d.text),children=library.filter(x=>x.parentId===d.id).length;
-$("splitStatus").textContent=count+" einzelne Bedeutungs-Abfragen in der Hauptdatei."+(children?" Bereits vorhanden: "+children+" Teileinheiten. Eine neue Aufteilung ersetzt diese.":"");
+let count=parseText(d.text).entries.reduce((n,e)=>n+e.meanings.length,0);
+let children=library.filter(x=>x.parentId===d.id).length;
+$("splitStatus").textContent=count+" Bedeutungs-Abfragen in der Hauptdatei."+
+(children?" Bereits vorhanden: "+children+" Teileinheiten. Eine neue Aufteilung ersetzt diese.":"");
 btn.disabled=count===0;
 }
 
+/*
+ * WICHTIG: Es wird nicht mehr jede einzelne Bedeutung als eigenes
+ * Split-Element behandelt. Stattdessen ist ein vollständiger Vokabeleintrag
+ * die kleinste Einheit. Alle Bedeutungen eines Eintrags bleiben zusammen.
+ *
+ * Die eingestellte Größe ist deshalb eine Ziel-/Obergrenze, die bei Bedarf
+ * überschritten werden darf, damit kein Wort getrennt wird.
+ */
 function splitDeck(){
 let base=selected();
-if(!base||isChild(base)){alert("Bitte zuerst die Hauptdatei auswählen.");return;}
-let parsed=parseText(base.text),size=Number($("splitSize").value)||10,tasks=[];
-parsed.entries.forEach(entry=>entry.meanings.forEach(meaning=>{
-tasks.push({forms:[...entry.forms],meaning,type:entry.type});
-}));
-if(!tasks.length){alert("Die Hauptdatei enthält keine abfragbaren Bedeutungen.");return;}
+if(!base||isChild(base)){
+alert("Bitte zuerst die Hauptdatei auswählen.");
+return;
+}
+
+let parsed=parseText(base.text);
+let size=Number($("splitSize").value)||10;
+let entries=parsed.entries;
+
+if(!entries.length){
+alert("Die Hauptdatei enthält keine abfragbaren Vokabeln.");
+return;
+}
+
 let chunks=[];
-for(let i=0;i<tasks.length;i+=size)chunks.push(tasks.slice(i,i+size));
-if(!confirm(chunks.length+" Teileinheiten mit jeweils höchstens "+size+" Abfragen erstellen? Bereits vorhandene Teileinheiten dieser Hauptdatei werden ersetzt."))return;
+let currentChunk=[];
+let currentCount=0;
+
+entries.forEach(entry=>{
+let entryCount=entry.meanings.length;
+
+/* Passt der nächste vollständige Eintrag nicht mehr in die Einheit,
+   wird vor diesem Eintrag eine neue Einheit begonnen. */
+if(currentChunk.length&&currentCount+entryCount>size){
+chunks.push(currentChunk);
+currentChunk=[];
+currentCount=0;
+}
+
+currentChunk.push(entry);
+currentCount+=entryCount;
+});
+
+if(currentChunk.length)chunks.push(currentChunk);
+
+let oversized=chunks.filter(chunk=>
+chunk.reduce((n,e)=>n+e.meanings.length,0)>size
+).length;
+
+let confirmText=chunks.length+" Teileinheiten erstellen?\n\n"+
+"Zielgröße: "+size+" Bedeutungs-Abfragen pro Einheit.\n"+
+"Die Einheiten werden nur zwischen vollständigen Vokabeleinträgen getrennt.\n"+
+(oversized
+?oversized+" Einheit(en) überschreiten die Zielgröße, weil ein vollständiger Eintrag sonst geteilt werden müsste.\n"
+:"")+
+"Bereits vorhandene Teileinheiten dieser Hauptdatei werden ersetzt.";
+
+if(!confirm(confirmText))return;
+
 library=library.filter(d=>d.parentId!==base.id);
 
+/* Tabellenzeilen werden der Einheit zugeordnet, in der ihre Grundform liegt. */
+let tableLinesByChunk=chunks.map(chunk=>{
+let lemmas=new Set(chunk.map(e=>norm(e.forms[0])));
+return parsed.tables
+.filter(t=>lemmas.has(norm(t.lemma)))
+.map(t=>t.raw);
+});
+
 chunks.forEach((chunk,index)=>{
-let grouped=new Map();
-chunk.forEach(task=>{
-let key=task.forms.join("|")+"::"+task.type;
-if(!grouped.has(key))grouped.set(key,{forms:task.forms,meanings:[],type:task.type});
-grouped.get(key).meanings.push(task.meaning);
-});
-let lines=[];
-grouped.forEach(e=>lines.push(e.forms.join(", ")+" | "+e.meanings.join("; ")+" | "+e.type));
+let lines=chunk.map(e=>e.raw);
+lines.push(...tableLinesByChunk[index]);
+
+let chunkQueries=chunk.reduce((n,e)=>n+e.meanings.length,0);
+
 library.push({
-id:uid(),name:base.name+" – Einheit "+(index+1),
-text:lines.join("\n"),created:stamp(),runs:[],
-parentId:base.id,partNumber:index+1,partCount:chunks.length,queryCount:chunk.length
+id:uid(),
+name:base.name+" – Einheit "+(index+1),
+text:lines.join("\n"),
+created:stamp(),
+runs:[],
+parentId:base.id,
+partNumber:index+1,
+partCount:chunks.length,
+queryCount:chunkQueries
 });
 });
+
 deckId=base.id;
 $("vocabText").value=base.text;
 vocab=parseText(base.text).entries;
+
 saveLib();
-renderHistory();status();updateSplitStatus();renderChart();
-$("splitStatus").textContent="Fertig: "+tasks.length+" Abfragen wurden in "+chunks.length+(chunks.length===1?" Einheit":" Einheiten")+" aufgeteilt.";
+renderHistory();
+status();
+updateSplitStatus();
+renderChart();
+
+let actualCounts=chunks.map(chunk=>
+chunk.reduce((n,e)=>n+e.meanings.length,0)
+);
+$("splitStatus").textContent=
+"Fertig: "+entries.length+" vollständige Vokabeleinträge mit "+
+entries.reduce((n,e)=>n+e.meanings.length,0)+
+" Bedeutungs-Abfragen wurden auf "+chunks.length+
+(chunks.length===1?" Einheit":" Einheiten")+
+" verteilt. Abfragen je Einheit: "+actualCounts.join(", ")+
+". Kein Vokabeleintrag wurde getrennt.";
 }
 $("splitBtn").onclick=splitDeck;
 
@@ -630,6 +765,7 @@ saveDeck(d?.name||"Latein "+stamp(),$("vocabText").value);
 $("vocabText").addEventListener("input",()=>{
 vocab=parseText($("vocabText").value).entries;
 status();
+updateSplitStatus();
 });
 
 $("saveTextBtn").onclick=()=>{
@@ -843,7 +979,6 @@ $("solutionEditor").value=current.targets.join("\n");
 }
 }
 
-// Die Lösung wird auch bei einer falschen Antwort verbraucht.
 remainingTargets.splice(good?matchIndex:0,1);
 awaitingAdvance=true;currentFieldIndex=index;
 let nextItem=fields.find((f,i)=>i>index&&!f.done);
