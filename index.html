@@ -133,13 +133,13 @@ button{padding:12px 13px}
 <a href="https://github.com/maekdev/LTrain2k" target="_blank" rel="noopener noreferrer">Quellcode</a>
 <a href="https://maekdev.github.io/LTrain2k" target="_blank" rel="noopener noreferrer">Programm-Website</a>
 </div>
-<span class="header-version" id="versionButton" title="Verstecktes Menü">v140</span>
+<span class="header-version" id="versionButton" title="Verstecktes Menü">v141</span>
 </header>
 
 <div id="hiddenMenu" class="hidden" style="position:fixed;inset:0;z-index:1000;background:#0008;align-items:center;justify-content:center;padding:20px">
 <div style="background:white;border-radius:16px;padding:22px;width:min(360px,100%);box-shadow:0 8px 35px #0004">
 <h2 style="margin-top:0">LTrain2k – Menü</h2>
-<p style="font-size:14px;color:#806f63">Version v140</p>
+<p style="font-size:14px;color:#806f63">Version v141</p>
 <button id="updateAppBtn" style="width:100%">Update herunterladen</button>
 <p id="updateStatus" role="status" aria-live="polite" style="font-size:12px;color:#806f63;line-height:1.5"></p>
 <button id="resetCacheBtn" style="background:#b8322b;width:100%">Cache zurücksetzen</button>
@@ -1209,6 +1209,24 @@ let registration=await navigator.serviceWorker.getRegistration();
 if(!registration)registration=await navigator.serviceWorker.register("./sw.js");
 
 let worker=registration.installing||registration.waiting;
+const waitForActivation=worker=>{
+if(worker.state==="activated")return Promise.resolve();
+return new Promise((resolve,reject)=>{
+const onStateChange=()=>{
+if(worker.state==="activated"){worker.removeEventListener("statechange",onStateChange);resolve();}
+else if(worker.state==="redundant"){worker.removeEventListener("statechange",onStateChange);reject(new Error("Die neue Version konnte nicht installiert werden."));}
+};
+worker.addEventListener("statechange",onStateChange);
+onStateChange();
+});
+};
+if(!registration.active){
+if(!worker)throw new Error("Der Service Worker ist noch nicht verfügbar. Bitte lade die Seite neu und versuche es erneut.");
+await waitForActivation(worker);
+status.textContent="App eingerichtet. Die Seite wird neu geladen …";
+location.reload();
+return;
+}
 let foundWorker=worker;
 const onUpdateFound=()=>{foundWorker=registration.installing;};
 registration.addEventListener("updatefound",onUpdateFound);
@@ -1246,16 +1264,7 @@ location.reload();
 return;
 }
 
-if(worker.state!=="activated"){
-await new Promise((resolve,reject)=>{
-const onStateChange=()=>{
-if(worker.state==="activated"){worker.removeEventListener("statechange",onStateChange);resolve();}
-else if(worker.state==="redundant"){worker.removeEventListener("statechange",onStateChange);reject(new Error("Die neue Version konnte nicht installiert werden."));}
-};
-worker.addEventListener("statechange",onStateChange);
-onStateChange();
-});
-}
+await waitForActivation(worker);
 status.textContent="Update installiert. Die App wird neu gestartet …";
 location.reload();
 }catch(error){
