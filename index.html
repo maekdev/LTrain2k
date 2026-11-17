@@ -60,8 +60,10 @@ button.selected{background:var(--orange);color:white;outline:2px solid var(--ora
 .history-item.active{border:2px solid var(--orange2)}
 .history-item small{display:block;color:var(--muted);font-weight:400}
 .history-main{min-width:0;overflow-wrap:anywhere}
-.history-delete{flex:0 0 42px;width:42px;padding:8px;background:#fae9e7;color:var(--red);border:1px solid #edc9c5;font-size:19px}
-.history-delete:hover{background:#f5d8d4}
+.history-actions{display:flex;gap:5px;flex:0 0 auto}
+.history-action{padding:8px 10px;font-size:15px;min-width:39px}
+.history-delete{background:var(--redbg);color:var(--red);border:1px solid #edc9c5}
+.history-rename{background:#fff;color:var(--orange);border:1px solid var(--border)}
 .history-children{margin:0 0 7px 22px;padding-left:12px;border-left:2px solid var(--border);display:grid;gap:6px}
 .history-child{display:flex;align-items:center;gap:7px}
 .history-child .history-item{background:#fffaf6}
@@ -82,7 +84,6 @@ button.selected{background:var(--orange);color:white;outline:2px solid var(--ora
 .answer-grid{display:grid;gap:9px}
 .answer-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
 .answer-row small{color:var(--muted)}
-#answerInput{font-size:20px;text-align:center;margin:8px 0}
 .meaning-result{border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:7px;font-size:14px;line-height:1.5}
 .meaning-result.correct{background:var(--greenbg);color:var(--green)}
 .meaning-result.wrong{background:var(--redbg);color:var(--red)}
@@ -102,6 +103,9 @@ button.selected{background:var(--orange);color:white;outline:2px solid var(--ora
 .quiz-table th,.quiz-table td{border:1px solid var(--border);padding:8px;text-align:center}
 .quiz-table th{background:var(--pale);color:var(--orange)}
 .quiz-table .revealed{background:var(--greenbg);color:var(--green);font-weight:700}
+.chart-wrap{width:100%;overflow:hidden}
+#progressChart{width:100%;height:auto;display:block}
+.chart-legend{font-size:12px;color:var(--muted);margin-top:5px}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 @media(max-width:600px){
 main{margin-top:12px}
@@ -113,12 +117,13 @@ button{padding:12px 13px}
 .answer-row{grid-template-columns:1fr}
 .split-controls{grid-template-columns:1fr}
 .split-controls button{width:100%}
+.history-actions{flex-direction:column}
+.history-action{padding:7px;min-width:35px}
 }
 </style>
 </head>
 
 <body>
-
 <header>
 <h1>Latein-Trainer</h1>
 <small>LTrain2k · Latein lernen. Schritt für Schritt.</small>
@@ -127,13 +132,13 @@ button{padding:12px 13px}
 <a href="https://github.com/maekdev/LTrain2k" target="_blank" rel="noopener noreferrer">Quellcode</a>
 <a href="https://maekdev.github.io/LTrain2k" target="_blank" rel="noopener noreferrer">Programm-Website</a>
 </div>
-<span class="header-version" id="versionButton" title="Verstecktes Menü">v128</span>
+<span class="header-version" id="versionButton" title="Verstecktes Menü">v129</span>
 </header>
 
 <div id="hiddenMenu" class="hidden" style="position:fixed;inset:0;z-index:1000;background:#0008;align-items:center;justify-content:center;padding:20px">
 <div style="background:white;border-radius:16px;padding:22px;width:min(360px,100%);box-shadow:0 8px 35px #0004">
 <h2 style="margin-top:0">LTrain2k – Menü</h2>
-<p style="font-size:14px;color:#806f63">Version v128</p>
+<p style="font-size:14px;color:#806f63">Version v129</p>
 <button id="resetCacheBtn" style="background:#b8322b;width:100%">Cache zurücksetzen</button>
 <p style="font-size:12px;color:#806f63;line-height:1.5">Löscht gespeicherte Vokabellisten, die Historie und Offline-Cachedaten dieser App.</p>
 <button class="secondary" id="closeHiddenMenu" style="width:100%">Schließen</button>
@@ -141,7 +146,6 @@ button{padding:12px 13px}
 </div>
 
 <main>
-
 <section class="panel" id="setupPanel">
 <div class="step-heading"><span class="step-number">1</span><h2>Vokabeln vorbereiten</h2></div>
 
@@ -198,7 +202,7 @@ button{padding:12px 13px}
 </div>
 
 <h3>Historie und Vokabellisten</h3>
-<div class="hint">Die Hauptdatei enthält immer den vollständigen Originalbestand. Darunter findest du die daraus erzeugten Lerneinheiten. Wähle einen Eintrag aus, um ihn zu lernen.</div>
+<div class="hint">Die Hauptdatei enthält immer den vollständigen Originalbestand. Darunter findest du die daraus erzeugten Lerneinheiten. Jede Liste kann umbenannt oder gelöscht werden.</div>
 <div id="historyList" class="history-list"><div class="hint">Noch keine gespeicherten Listen.</div></div>
 
 <div class="step-heading" style="margin-top:24px"><span class="step-number">3</span><h2>Lernmodus wählen</h2></div>
@@ -290,16 +294,30 @@ button{padding:12px 13px}
 <section class="panel hidden" id="endPanel">
 <h2>Einheit beendet</h2>
 <p id="endMessage"></p>
-<button id="restartBtn">Zurück zur Auswahl</button>
+<div class="stats-grid">
+<div class="stat"><strong id="endTotal">0</strong><span>Antworten</span></div>
+<div class="stat"><strong id="endCorrect">0</strong><span>Richtig</span></div>
+<div class="stat"><strong id="endWrong">0</strong><span>Falsch</span></div>
+<div class="stat"><strong id="endAccuracy">0%</strong><span>Trefferquote</span></div>
+</div>
+<div class="button-row"><button id="restartBtn">Zurück zur Auswahl</button></div>
 </section>
 
+<section class="panel" id="historyStatsPanel">
+<h2>Lernfortschritt der ausgewählten Liste</h2>
+<div id="chartTitle" class="hint">Wähle eine Liste aus deiner Historie.</div>
+<div class="chart-wrap">
+<svg id="progressChart" viewBox="0 0 600 230" role="img" aria-label="Lernfortschritt über die Durchläufe"></svg>
+</div>
+<div class="chart-legend">Linie = richtige Antworten in Prozent · Unter der Grafik stehen die Fehler je Durchlauf.</div>
+<div id="runDetails" class="hint"></div>
+</section>
 </main>
 
 <footer>LTrain2k · Latein-Trainer · Offline-fähig, Daten bleiben lokal im Browser</footer>
 
 <script>
 (()=>{
-
 "use strict";
 
 const $=id=>document.getElementById(id),KEY="ltrain2k-library-v1";
@@ -354,7 +372,6 @@ let remainingTargets=[];
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const stamp=()=>new Date().toLocaleString("de-DE");
 
-// Makrons werden beim Vergleich ignoriert.
 const norm=s=>String(s??"").trim().toLocaleLowerCase("de-DE")
 .normalize("NFD").replace(/[\u0304]/g,"")
 .replace(/[.,!?;:]/g,"").replace(/\s+/g," ").normalize("NFC");
@@ -383,9 +400,11 @@ function saveLib(){
 try{localStorage.setItem(KEY,JSON.stringify(library))}
 catch(e){alert("Lokaler Speicher voll. Bitte ältere Listen entfernen.")}
 }
-
 function selected(){return library.find(x=>x.id===deckId)}
-function isChild(deck){return !!deck?.parentId}
+function isChild(d){return !!d?.parentId}
+function queryCount(text){
+return parseText(text).entries.reduce((n,e)=>n+e.meanings.length,0);
+}
 
 function saveDeck(name,text){
 let parsed=parseText(text);
@@ -394,10 +413,15 @@ alert("Keine gültigen Vokabeln oder Tabellenzeilen gefunden.");
 return false;
 }
 let d=selected();
+if(d&&isChild(d))d=null;
+
 if(d){
-d.name=name||d.name;
+if(d.text!==text){
+library=library.filter(x=>x.parentId!==d.id);
 d.text=text;
 d.updated=stamp();
+}
+if(name)d.name=name;
 }else{
 d={id:uid(),name:name||"Vokabelliste",text,created:stamp(),runs:[]};
 library.unshift(d);
@@ -407,14 +431,14 @@ vocab=parsed.entries;
 saveLib();
 renderHistory();
 status();
+renderChart();
+updateSplitStatus();
 return true;
 }
 
 function status(){
-let d=selected();
-let count=vocab.reduce((sum,e)=>sum+e.meanings.length,0);
-$("listStatus").textContent=vocab.length+" Vokabeleinträge · "+count+" Bedeutungs-Abfragen bereit."+
-(d&&isChild(d)?" (Teilliste)":"");
+let d=selected(),count=vocab.reduce((sum,e)=>sum+e.meanings.length,0);
+$("listStatus").textContent=vocab.length+" Vokabeleinträge · "+count+" Bedeutungs-Abfragen bereit."+(d&&isChild(d)?" (Teilliste)":"");
 }
 
 function selectDeck(id){
@@ -425,26 +449,99 @@ $("vocabText").value=d.text;
 vocab=parseText(d.text).entries;
 renderHistory();
 status();
+renderChart();
 updateSplitStatus();
 }
 
-function deleteChild(id){
+function deleteDeck(id){
 let d=library.find(x=>x.id===id);
-if(!d||!isChild(d))return;
-if(!confirm("Diese Teileinheit wirklich löschen? Die ursprüngliche Hauptdatei bleibt erhalten."))return;
-library=library.filter(x=>x.id!==id);
-if(deckId===id){
-let parent=library.find(x=>x.id===d.parentId);
-if(parent){
-deckId=parent.id;
-$("vocabText").value=parent.text;
-vocab=parseText(parent.text).entries;
+if(!d)return;
+let children=library.filter(x=>x.parentId===id);
+let message=isChild(d)
+?"Diese Teileinheit wirklich löschen?"
+:"Diese Hauptdatei und "+children.length+" zugehörige Teileinheit(en) wirklich löschen?";
+if(!confirm(message))return;
+
+let deletingIds=new Set([id,...children.map(x=>x.id)]);
+library=library.filter(x=>!deletingIds.has(x.id));
+
+if(deletingIds.has(deckId)){
+deckId=null;
+let nextDeck=library.find(x=>!isChild(x));
+if(nextDeck){
+deckId=nextDeck.id;
+$("vocabText").value=nextDeck.text;
+vocab=parseText(nextDeck.text).entries;
+}else{
+$("vocabText").value="";
+vocab=[];
 }
 }
 saveLib();
 renderHistory();
 status();
+renderChart();
 updateSplitStatus();
+}
+
+function renameDeck(id){
+let d=library.find(x=>x.id===id);
+if(!d)return;
+let name=prompt("Neuen Namen für diese Liste eingeben:",d.name);
+if(name===null)return;
+name=name.trim();
+if(!name){alert("Der Name darf nicht leer sein.");return;}
+d.name=name;
+d.updated=stamp();
+saveLib();
+renderHistory();
+renderChart();
+updateSplitStatus();
+status();
+}
+
+function makeHistoryEntry(d,isChildEntry=false){
+let entry=document.createElement("div");
+entry.className="history-entry";
+
+let b=document.createElement("button");
+b.type="button";
+b.className="history-item"+(d.id===deckId?" active":"");
+let left=document.createElement("span");
+left.className="history-main";
+let title=document.createElement("strong");
+let date=document.createElement("small");
+let right=document.createElement("span");
+
+title.textContent=(isChildEntry?"":"📁 ")+d.name;
+date.textContent=(d.updated?"Aktualisiert: "+d.updated:"Erstellt: "+d.created)+(isChildEntry?" · Einheit "+d.partNumber+" von "+d.partCount:" · Hauptdatei");
+right.textContent=queryCount(d.text)+" Abfragen";
+left.append(title,date);
+b.append(left,right);
+b.onclick=()=>selectDeck(d.id);
+
+let actions=document.createElement("div");
+actions.className="history-actions";
+
+let rename=document.createElement("button");
+rename.type="button";
+rename.className="history-action history-rename";
+rename.textContent="✎";
+rename.title="Umbenennen";
+rename.setAttribute("aria-label","Liste umbenennen");
+rename.onclick=()=>renameDeck(d.id);
+
+let del=document.createElement("button");
+del.type="button";
+del.className="history-action history-delete";
+del.textContent="×";
+del.title="Liste löschen";
+del.setAttribute("aria-label","Liste löschen");
+del.onclick=()=>deleteDeck(d.id);
+
+actions.append(rename,del);
+entry.append(b,actions);
+return entry;
 }
 
 function renderHistory(){
@@ -454,63 +551,15 @@ if(!library.length){
 c.textContent="Noch keine gespeicherten Listen.";
 return;
 }
-
 let bases=library.filter(d=>!isChild(d));
 bases.forEach(d=>{
-let children=library.filter(x=>x.parentId===d.id).sort((a,b)=>(a.partNumber||0)-(b.partNumber||0));
 let wrapper=document.createElement("div");
-let entry=document.createElement("div");
-entry.className="history-entry";
-
-let b=document.createElement("button");
-b.className="history-item"+(d.id===deckId?" active":"");
-let a=document.createElement("span");
-a.className="history-main";
-let strong=document.createElement("strong");
-let small=document.createElement("small");
-let r=document.createElement("span");
-strong.textContent="📁 "+d.name;
-small.textContent=(d.updated?"Aktualisiert: "+d.updated:"Erstellt: "+d.created)+" · Hauptdatei";
-let baseEntries=parseText(d.text).entries;
-let baseQueries=baseEntries.reduce((n,e)=>n+e.meanings.length,0);
-r.textContent=baseEntries.length+" Wörter · "+baseQueries+" Abfragen";
-a.append(strong,small);
-b.append(a,r);
-b.onclick=()=>selectDeck(d.id);
-entry.append(b);
-wrapper.append(entry);
-
+wrapper.append(makeHistoryEntry(d,false));
+let children=library.filter(x=>x.parentId===d.id).sort((a,b)=>(a.partNumber||0)-(b.partNumber||0));
 if(children.length){
 let childBox=document.createElement("div");
 childBox.className="history-children";
-children.forEach(child=>{
-let childEntry=document.createElement("div");
-childEntry.className="history-child";
-let cb=document.createElement("button");
-cb.className="history-item"+(child.id===deckId?" active":"");
-let ca=document.createElement("span");
-ca.className="history-main";
-let cs=document.createElement("strong");
-let cm=document.createElement("small");
-let cr=document.createElement("span");
-let childEntries=parseText(child.text).entries;
-let childQueries=childEntries.reduce((n,e)=>n+e.meanings.length,0);
-cs.textContent=child.name;
-cm.textContent="Einheit "+child.partNumber+" von "+child.partCount;
-cr.textContent=childQueries+" Abfragen";
-ca.append(cs,cm);
-cb.append(ca,cr);
-cb.onclick=()=>selectDeck(child.id);
-let del=document.createElement("button");
-del.className="history-delete";
-del.type="button";
-del.title="Teileinheit löschen";
-del.setAttribute("aria-label","Teileinheit löschen");
-del.textContent="×";
-del.onclick=e=>{e.stopPropagation();deleteChild(child.id)};
-childEntry.append(cb,del);
-childBox.append(childEntry);
-});
+children.forEach(child=>childBox.append(makeHistoryEntry(child,true)));
 wrapper.append(childBox);
 }
 c.append(wrapper);
@@ -518,106 +567,55 @@ c.append(wrapper);
 }
 
 function updateSplitStatus(){
-let d=selected();
-let btn=$("splitBtn");
+let d=selected(),btn=$("splitBtn");
 if(!d){
 $("splitStatus").textContent="Lade zuerst eine Textdatei, um sie aufzuteilen.";
-btn.disabled=true;
-return;
+btn.disabled=true;return;
 }
 if(isChild(d)){
 $("splitStatus").textContent="Aktuell ist eine Teileinheit ausgewählt. Wähle zuerst die Hauptdatei aus, um sie neu aufzuteilen.";
-btn.disabled=true;
-return;
+btn.disabled=true;return;
 }
-let count=parseText(d.text).entries.reduce((n,e)=>n+e.meanings.length,0);
-let children=library.filter(x=>x.parentId===d.id).length;
-$("splitStatus").textContent=count+" einzelne Bedeutungs-Abfragen in der Hauptdatei."+
-(children?" Bereits vorhanden: "+children+" Teileinheiten. Eine neue Aufteilung ersetzt diese.":"");
+let count=queryCount(d.text),children=library.filter(x=>x.parentId===d.id).length;
+$("splitStatus").textContent=count+" einzelne Bedeutungs-Abfragen in der Hauptdatei."+(children?" Bereits vorhanden: "+children+" Teileinheiten. Eine neue Aufteilung ersetzt diese.":"");
 btn.disabled=count===0;
 }
 
 function splitDeck(){
 let base=selected();
-if(!base||isChild(base)){
-alert("Bitte zuerst die Hauptdatei auswählen.");
-return;
-}
-let parsed=parseText(base.text);
-let size=Number($("splitSize").value)||10;
-let tasks=[];
-
-// Jede Bedeutung ist eine eigene Abfrage.
-// Ein Eintrag mit mehreren Bedeutungen kann dadurch über Einheiten verteilt werden.
-parsed.entries.forEach(entry=>{
-entry.meanings.forEach(meaning=>{
-tasks.push({
-forms:[...entry.forms],
-meaning,
-type:entry.type,
-raw:entry.raw
-});
-});
-});
-
-if(!tasks.length){
-alert("Die Hauptdatei enthält keine abfragbaren Bedeutungen.");
-return;
-}
-
+if(!base||isChild(base)){alert("Bitte zuerst die Hauptdatei auswählen.");return;}
+let parsed=parseText(base.text),size=Number($("splitSize").value)||10,tasks=[];
+parsed.entries.forEach(entry=>entry.meanings.forEach(meaning=>{
+tasks.push({forms:[...entry.forms],meaning,type:entry.type});
+}));
+if(!tasks.length){alert("Die Hauptdatei enthält keine abfragbaren Bedeutungen.");return;}
 let chunks=[];
-for(let i=0;i<tasks.length;i+=size){
-chunks.push(tasks.slice(i,i+size));
-}
-
-if(!confirm(chunks.length+" Teileinheiten mit jeweils höchstens "+size+
-" Abfragen erstellen? Bereits vorhandene Teileinheiten dieser Hauptdatei werden ersetzt."))return;
-
-// Nur abgeleitete Einheiten dieser Hauptdatei ersetzen.
-// Die Hauptdatei selbst bleibt unverändert.
+for(let i=0;i<tasks.length;i+=size)chunks.push(tasks.slice(i,i+size));
+if(!confirm(chunks.length+" Teileinheiten mit jeweils höchstens "+size+" Abfragen erstellen? Bereits vorhandene Teileinheiten dieser Hauptdatei werden ersetzt."))return;
 library=library.filter(d=>d.parentId!==base.id);
 
 chunks.forEach((chunk,index)=>{
-// Bedeutungen derselben Vokabel innerhalb einer Einheit wieder zusammenfassen.
 let grouped=new Map();
 chunk.forEach(task=>{
 let key=task.forms.join("|")+"::"+task.type;
-if(!grouped.has(key)){
-grouped.set(key,{forms:task.forms,meanings:[],type:task.type});
-}
+if(!grouped.has(key))grouped.set(key,{forms:task.forms,meanings:[],type:task.type});
 grouped.get(key).meanings.push(task.meaning);
 });
-
 let lines=[];
-grouped.forEach(entry=>{
-lines.push(entry.forms.join(", ")+" | "+entry.meanings.join("; ")+" | "+entry.type);
+grouped.forEach(e=>lines.push(e.forms.join(", ")+" | "+e.meanings.join("; ")+" | "+e.type));
+library.push({
+id:uid(),name:base.name+" – Einheit "+(index+1),
+text:lines.join("\n"),created:stamp(),runs:[],
+parentId:base.id,partNumber:index+1,partCount:chunks.length,queryCount:chunk.length
 });
-
-let child={
-id:uid(),
-name:base.name+" – Einheit "+(index+1),
-text:lines.join("\n"),
-created:stamp(),
-runs:[],
-parentId:base.id,
-partNumber:index+1,
-partCount:chunks.length,
-queryCount:chunk.length
-};
-library.push(child);
 });
-
 deckId=base.id;
 $("vocabText").value=base.text;
 vocab=parseText(base.text).entries;
 saveLib();
-renderHistory();
-status();
-updateSplitStatus();
-$("splitStatus").textContent="Fertig: "+tasks.length+" Abfragen wurden in "+chunks.length+
-(chunks.length===1?" Einheit":" Einheiten")+" aufgeteilt.";
+renderHistory();status();updateSplitStatus();renderChart();
+$("splitStatus").textContent="Fertig: "+tasks.length+" Abfragen wurden in "+chunks.length+(chunks.length===1?" Einheit":" Einheiten")+" aufgeteilt.";
 }
-
 $("splitBtn").onclick=splitDeck;
 
 $("loadTextBtn").onclick=()=>{
@@ -627,7 +625,6 @@ alert("Du bearbeitest gerade eine Teileinheit. Wähle zum Aktualisieren der Orig
 return;
 }
 saveDeck(d?.name||"Latein "+stamp(),$("vocabText").value);
-updateSplitStatus();
 };
 
 $("vocabText").addEventListener("input",()=>{
@@ -650,16 +647,14 @@ setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
 
 $("importBtn").onclick=()=>$("fileInput").click();
-
 $("fileInput").onchange=async e=>{
 let f=e.target.files[0];
 if(!f)return;
 try{
-$("vocabText").value=await f.text();
+let text=await f.text();
+$("vocabText").value=text;
 deckId=null;
-if(saveDeck(f.name,$("vocabText").value)){
-updateSplitStatus();
-}
+if(saveDeck(f.name,text))updateSplitStatus();
 }catch(err){alert("Datei konnte nicht gelesen werden.");}
 e.target.value="";
 };
@@ -667,7 +662,11 @@ e.target.value="";
 $("copyPromptBtn").onclick=async()=>{
 let s=$("copyPromptStatus");
 try{
-await navigator.clipboard.writeText(PROMPT);
+if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(PROMPT);
+else{
+$("aiPrompt").focus();$("aiPrompt").select();
+if(!document.execCommand("copy"))throw new Error("Kopieren nicht möglich");
+}
 s.textContent="Prompt kopiert.";
 }catch(e){
 $("aiPrompt").select();
@@ -698,9 +697,7 @@ $("timeStat").textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%
 
 function start(){
 let text=$("vocabText").value,p=parseText(text);
-if(!p.entries.length&&!p.tables.length){
-alert("Bitte zuerst eine Vokabelliste laden.");return;
-}
+if(!p.entries.length&&!p.tables.length){alert("Bitte zuerst eine Vokabelliste laden.");return;}
 if(!selected()||selected().text!==text){
 if(!saveDeck(selected()?.name||"Latein "+stamp(),text))return;
 }
@@ -737,65 +734,45 @@ function next(){
 if(!queue.length){finish();return;}
 current=queue.shift();
 attempt=0;checked=false;cardFlipped=false;
-awaitingAdvance=false;currentFieldIndex=-1;
-remainingTargets=[];
+awaitingAdvance=false;currentFieldIndex=-1;remainingTargets=[];
 $("progressText").textContent="Noch "+(queue.length+1)+" Abfrage(n)";
 let totalQueue=queue.length+1;
 $("progressBar").style.width=((totalQueue-queue.length)/totalQueue*100)+"%";
 if(mode==="cards"){
-let e=current;
-$("cardWord").textContent=e.forms[0];
+$("cardWord").textContent=current.forms[0];
 $("cardHint").textContent="Lösung aufdecken";
 $("flipBtn").classList.remove("hidden");
 $("flipBtn").textContent="Lösung anzeigen";
 $("cardDecision").classList.add("hidden");
-}else if(mode==="tabellarium"){
-setupTable();
-}else{
-setupTyping();
-}
+}else if(mode==="tabellarium")setupTable();
+else setupTyping();
 }
 
 function setupTyping(){
 let e=current,targets=[],question="",direction="";
 if(mode==="typing"){
-question=e.forms.join(", ");
-targets=e.meanings;
+question=e.forms.join(", ");targets=e.meanings;
 direction="Gib alle deutschen Bedeutungen ein. Die Reihenfolge ist egal.";
 }
 if(mode==="verbs"){
-question=e.forms[0];
-targets=e.forms.slice(1);
+question=e.forms[0];targets=e.forms.slice(1);
 direction="Ergänze die weiteren Verbformen. Die Reihenfolge ist egal.";
 }
 if(mode==="nomadj"){
-question=e.forms[0];
-targets=e.forms.slice(1);
+question=e.forms[0];targets=e.forms.slice(1);
 direction="Gib die weiteren lateinischen Formen ein. Die Reihenfolge ist egal.";
 }
 current.targets=targets;
 remainingTargets=[...targets];
-currentHadError=false;
-awaitingAdvance=false;
-checked=false;
-currentFieldIndex=-1;
+currentHadError=false;awaitingAdvance=false;checked=false;currentFieldIndex=-1;
 $("questionWord").textContent=question;
 $("directionText").textContent=direction;
-let box=$("answerFields");
-box.replaceChildren();
-fields=[];
+let box=$("answerFields");box.replaceChildren();fields=[];
 targets.forEach((t,i)=>{
-let wrap=document.createElement("div");
-let lab=document.createElement("label");
-let inp=document.createElement("input");
-let result=document.createElement("div");
+let wrap=document.createElement("div"),lab=document.createElement("label"),inp=document.createElement("input"),result=document.createElement("div");
 lab.textContent=(mode==="typing"?"Bedeutung ":"Form ")+(i+1)+" von "+targets.length;
-inp.type="text";
-inp.autocomplete="off";
-inp.autocapitalize="off";
-inp.spellcheck=false;
-inp.dataset.index=i;
-inp.disabled=i!==0;
+inp.type="text";inp.autocomplete="off";inp.autocapitalize="off";inp.spellcheck=false;
+inp.dataset.index=i;inp.disabled=i!==0;
 inp.addEventListener("keydown",ev=>{
 if(ev.key!=="Enter")return;
 ev.preventDefault();
@@ -804,8 +781,7 @@ if(checked){next();return;}
 checkTyping(i);
 });
 result.className="meaning-result hidden";
-wrap.append(lab,inp,result);
-box.append(wrap);
+wrap.append(lab,inp,result);box.append(wrap);
 fields.push({input:inp,result,target:"",done:false});
 });
 $("feedback").className="feedback hidden";
@@ -816,19 +792,12 @@ if(fields[0])fields[0].input.focus();
 }
 
 function comparisonHTML(input,target){
-let box=document.createElement("div");
-box.className="comparison";
+let box=document.createElement("div");box.className="comparison";
 function side(label,value,isUser){
-let side=document.createElement("div");
-let caption=document.createElement("div");
-let word=document.createElement("div");
-side.className="compare-box";
-caption.className="compare-label";
-caption.textContent=label;
-word.className="compare-word";
+let side=document.createElement("div"),caption=document.createElement("div"),word=document.createElement("div");
+side.className="compare-box";caption.className="compare-label";caption.textContent=label;word.className="compare-word";
 for(let i=0;i<value.length;i++){
-let span=document.createElement("span");
-span.textContent=value[i];
+let span=document.createElement("span");span.textContent=value[i];
 if(isUser){
 let expected=target[i]||"";
 if(norm(value[i])===norm(expected)&&i<target.length)span.className="good-letter";
@@ -836,8 +805,7 @@ else span.className="bad-letter";
 }
 word.append(span);
 }
-side.append(caption,word);
-return side;
+side.append(caption,word);return side;
 }
 box.append(side("Richtige Schreibweise",target,false),side("Deine Eingabe",input,true));
 return box;
@@ -849,19 +817,14 @@ let item=fields[index];
 if(!item||item.done)return;
 let answer=item.input.value.trim();
 if(!answer)return;
-
 let matchIndex=remainingTargets.findIndex(target=>norm(answer)===norm(target));
 let good=matchIndex!==-1;
 let correctAnswer=good?remainingTargets[matchIndex]:remainingTargets[0];
 if(!correctAnswer)return;
 
-total++;
-item.done=true;
-item.input.readOnly=true;
-item.target=correctAnswer;
+total++;item.done=true;item.input.readOnly=true;item.target=correctAnswer;
 item.result.className="meaning-result "+(good?"correct":"wrong");
 item.result.replaceChildren();
-
 let heading=document.createElement("strong");
 heading.textContent=good?"✓ RICHTIG!":"✗ FALSCH – RICHTIGE LÖSUNG:";
 item.result.append(heading);
@@ -869,14 +832,10 @@ item.result.append(heading);
 if(good){
 correct++;
 let detail=document.createElement("div");
-detail.style.fontWeight="700";
-detail.style.fontSize="17px";
-detail.style.marginTop="5px";
-detail.textContent=correctAnswer;
-item.result.append(detail);
+detail.style.fontWeight="700";detail.style.fontSize="17px";detail.style.marginTop="5px";
+detail.textContent=correctAnswer;item.result.append(detail);
 }else{
-wrong++;
-currentHadError=true;
+wrong++;currentHadError=true;
 item.result.append(comparisonHTML(answer,correctAnswer));
 if($("editDuring").value==="on"){
 $("editSolution").classList.remove("hidden");
@@ -886,13 +845,9 @@ $("solutionEditor").value=current.targets.join("\n");
 
 // Die Lösung wird auch bei einer falschen Antwort verbraucht.
 remainingTargets.splice(good?matchIndex:0,1);
-
-awaitingAdvance=true;
-currentFieldIndex=index;
+awaitingAdvance=true;currentFieldIndex=index;
 let nextItem=fields.find((f,i)=>i>index&&!f.done);
-$("keyboardHint").textContent=nextItem
-?"Antwort gespeichert. Enter = nächste Bedeutung/Form."
-:"Antwort gespeichert. Enter = nächste Vokabel.";
+$("keyboardHint").textContent=nextItem?"Antwort gespeichert. Enter = nächste Bedeutung/Form.":"Antwort gespeichert. Enter = nächste Vokabel.";
 updateStats();
 }
 
@@ -907,25 +862,12 @@ currentItem.result.replaceChildren();
 }
 let nextItem=fields.find((f,i)=>i>currentFieldIndex&&!f.done);
 if(nextItem){
-nextItem.input.disabled=false;
-nextItem.input.readOnly=false;
-nextItem.input.value="";
-nextItem.input.focus();
+nextItem.input.disabled=false;nextItem.input.readOnly=false;nextItem.input.value="";nextItem.input.focus();
 $("keyboardHint").textContent="Bedeutung/Form "+(fields.indexOf(nextItem)+1)+" von "+fields.length+" – Enter = prüfen.";
 return;
 }
 if(currentHadError)queue.push(current);
 next();
-}
-
-function feedback(good,msg){
-let b=$("feedback");
-b.className="feedback "+(good?"correct":"wrong");
-b.textContent=(good?"RICHTIG! ":"NOCH NICHT RICHTIG. ")+msg;
-if(!good&&$("editDuring").value==="on"){
-$("editSolution").classList.remove("hidden");
-$("solutionEditor").value=current.targets.join("\n");
-}
 }
 
 $("applySolutionBtn").onclick=()=>{
@@ -936,26 +878,21 @@ if(mode==="typing")current.meanings=lines;
 else current.forms=[current.forms[0],...lines];
 $("editSolution").classList.add("hidden");
 if(selected()){
-let deck=selected();
-let parsed=parseText(deck.text);
+let deck=selected(),parsed=parseText(deck.text);
 let found=parsed.entries.find(x=>x.forms[0]===current.forms[0]&&x.type===current.type);
 if(found){
 if(mode==="typing")found.meanings=lines;
 else found.forms=[found.forms[0],...lines];
-let rawLines=deck.text.split(/\r?\n/);
-let idx=rawLines.findIndex(x=>x.trim()===found.raw);
+let rawLines=deck.text.split(/\r?\n/),idx=rawLines.findIndex(x=>x.trim()===found.raw);
 if(idx>=0){
 rawLines[idx]=found.forms.join(", ")+" | "+found.meanings.join("; ")+" | "+found.type;
-deck.text=rawLines.join("\n");
-$("vocabText").value=deck.text;
-saveLib();
+deck.text=rawLines.join("\n");$("vocabText").value=deck.text;saveLib();
 }
 }
 }
 setupTyping();
 };
 
-// Karteikarten
 function flip(){
 if(cardFlipped)return;
 cardFlipped=true;
@@ -972,30 +909,24 @@ if(!cardFlipped)return;
 total++;
 if(good)correct++;
 else{wrong++;queue.push(current);}
-updateStats();
-next();
+updateStats();next();
 }
 $("cardCorrect").onclick=()=>decide(true);
 $("cardWrong").onclick=()=>decide(false);
 
-// Tabellarium
 function setupTable(){
 tableTask=current.task;
 $("tableLemma").textContent=current.lemma;
-let table=document.createElement("table");
-table.className="quiz-table";
+let table=document.createElement("table");table.className="quiz-table";
 let tr=document.createElement("tr");
 ["Grundform","Tabellenstelle","Form"].forEach(x=>{
-let th=document.createElement("th");
-th.textContent=x;
-tr.append(th);
+let th=document.createElement("th");th.textContent=x;tr.append(th);
 });
 table.append(tr);
 current.rows.forEach(r=>{
 let row=document.createElement("tr");
 [current.lemma,r.label,r.form].forEach((v,i)=>{
-let td=document.createElement("td");
-td.textContent=v;
+let td=document.createElement("td");td.textContent=v;
 if(i===2&&r===tableTask){td.textContent="???";td.className="masked";}
 row.append(td);
 });
@@ -1020,41 +951,44 @@ $("tableFeedback").textContent="Richtig: "+tableTask.form;
 let cells=$("tableDisplay").querySelectorAll("tr");
 cells.forEach(row=>{
 if(row.children[1]?.textContent===tableTask.label){
-row.children[2].textContent=tableTask.form;
-row.children[2].className="revealed";
+row.children[2].textContent=tableTask.form;row.children[2].className="revealed";
 }
 });
 $("tableAnswer").disabled=true;
-updateStats();
-setTimeout(()=>next(),650);
+updateStats();setTimeout(()=>next(),650);
 }else{
 wrong++;
 $("tableFeedback").className="feedback wrong";
 $("tableFeedback").textContent="Noch nicht richtig. Die Lösung bleibt zunächst verborgen; der Eintrag kommt später erneut.";
-queue.push(current);
-$("tableAnswer").value="";
-$("tableAnswer").focus();
-updateStats();
+queue.push(current);$("tableAnswer").value="";$("tableAnswer").focus();updateStats();
 }
 }
-
 $("tableAnswer").addEventListener("keydown",e=>{
 if(e.key==="Enter"){e.preventDefault();checkTable();}
 });
 
-// Abschluss
 function finish(){
 clearInterval(timer);
 updateStats();
 let d=selected();
 if(d){
 d.runs=d.runs||[];
-d.runs.push({date:stamp(),total,correct,wrong,accuracy:total?Math.round(correct/total*100):0});
+d.runs.push({
+date:stamp(),total,correct,wrong,
+accuracy:total?Math.round(correct/total*100):0
+});
 saveLib();
 }
+$("endTotal").textContent=total;
+$("endCorrect").textContent=correct;
+$("endWrong").textContent=wrong;
+$("endAccuracy").textContent=(total?Math.round(correct/total*100):0)+"%";
 $("learningPanel").classList.add("hidden");
+$("statsPanel").classList.add("hidden");
 $("endPanel").classList.remove("hidden");
-$("endMessage").textContent=`Durchlauf abgeschlossen: ${correct} richtige und ${wrong} falsche Antworten.`;
+$("endMessage").textContent="Durchlauf abgeschlossen: "+correct+" richtige und "+wrong+" falsche Antworten. Trefferquote: "+(total?Math.round(correct/total*100):0)+"%.";
+renderHistory();
+renderChart();
 }
 
 function stop(){
@@ -1063,25 +997,69 @@ $("learningPanel").classList.add("hidden");
 $("statsPanel").classList.add("hidden");
 $("endPanel").classList.add("hidden");
 $("setupPanel").classList.remove("hidden");
+renderHistory();
+renderChart();
 }
 
 $("startBtn").onclick=start;
 $("stopBtn").onclick=stop;
 $("restartBtn").onclick=stop;
 
+function renderChart(){
+let svg=$("progressChart");
+svg.replaceChildren();
+let deck=selected();
+if(!deck||!deck.runs||!deck.runs.length){
+$("chartTitle").textContent=deck?"Noch keine abgeschlossenen Durchläufe für diese Liste.":"Wähle eine Liste aus deiner Historie.";
+$("runDetails").textContent="";
+return;
+}
+let runs=deck.runs;
+$("chartTitle").textContent=deck.name+" · "+runs.length+" Durchlauf/Durchläufe";
+const NS="http://www.w3.org/2000/svg";
+const make=(tag,attrs,text)=>{
+let el=document.createElementNS(NS,tag);
+Object.entries(attrs||{}).forEach(([k,v])=>el.setAttribute(k,v));
+if(text!==undefined)el.textContent=text;
+svg.appendChild(el);return el;
+};
+const left=45,right=580,top=18,bottom=180;
+[0,25,50,75,100].forEach(value=>{
+let y=bottom-(value/100)*(bottom-top);
+make("line",{x1:left,y1:y,x2:right,y2:y,stroke:"#e7d5c7","stroke-width":1});
+make("text",{x:36,y:y+4,"text-anchor":"end",fill:"#806f63","font-size":11},value+"%");
+});
+let points=runs.map((run,i)=>{
+let x=runs.length===1?(left+right)/2:left+i*(right-left)/(runs.length-1);
+let y=bottom-(run.accuracy/100)*(bottom-top);
+return{x,y,run,i};
+});
+make("polyline",{
+points:points.map(p=>p.x+","+p.y).join(" "),
+fill:"none",stroke:"#a94e16","stroke-width":3,
+"stroke-linejoin":"round","stroke-linecap":"round"
+});
+points.forEach(p=>{
+make("circle",{cx:p.x,cy:p.y,r:5,fill:"#a94e16"});
+make("text",{x:p.x,y:p.y-10,"text-anchor":"middle",fill:"#71330f","font-size":11,"font-weight":"bold"},p.run.accuracy+"%");
+make("text",{x:p.x,y:bottom+20,"text-anchor":"middle",fill:"#806f63","font-size":11},String(p.i+1));
+});
+make("text",{x:310,y:220,"text-anchor":"middle",fill:"#806f63","font-size":12},"Durchlauf");
+$("runDetails").textContent=runs.map((r,i)=>
+"Durchlauf "+(i+1)+": "+r.wrong+" Fehler · "+r.accuracy+"% richtig · "+r.date
+).join("  |  ");
+}
+
 // Verstecktes Menü über die Versionsnummer
 $("versionButton").addEventListener("click",()=>{
 $("hiddenMenu").style.display="flex";
 $("hiddenMenu").classList.remove("hidden");
 });
-$("closeHiddenMenu").addEventListener("click",()=>{
-$("hiddenMenu").classList.add("hidden");
-});
+$("closeHiddenMenu").addEventListener("click",()=>$("hiddenMenu").classList.add("hidden"));
 $("hiddenMenu").addEventListener("click",e=>{
 if(e.target===$("hiddenMenu"))$("hiddenMenu").classList.add("hidden");
 });
 
-// Cache, lokale Daten und Service Worker zurücksetzen
 $("resetCacheBtn").addEventListener("click",async()=>{
 let confirmed=confirm("Wirklich alle gespeicherten LTrain2k-Daten und Offline-Cachedaten zurücksetzen? Vokabellisten und Lernhistorie gehen dabei verloren.");
 if(!confirmed)return;
@@ -1093,13 +1071,11 @@ await Promise.all(cacheNames.map(name=>caches.delete(name)));
 }
 if("serviceWorker" in navigator){
 let registrations=await navigator.serviceWorker.getRegistrations();
-await Promise.all(registrations.map(registration=>registration.unregister()));
+await Promise.all(registrations.map(r=>r.unregister()));
 }
 alert("Die gespeicherten Daten wurden zurückgesetzt. Die Seite wird neu geladen.");
 location.reload();
-}catch(error){
-alert("Beim Zurücksetzen ist ein Fehler aufgetreten. Bitte versuche es erneut.");
-}
+}catch(error){alert("Beim Zurücksetzen ist ein Fehler aufgetreten. Bitte versuche es erneut.");}
 });
 
 function load(){
@@ -1108,9 +1084,6 @@ library=JSON.parse(localStorage.getItem(KEY)||"[]");
 if(!Array.isArray(library))library=[];
 }catch(e){library=[];}
 renderHistory();
-
-// Falls ein älterer Speicherstand nur einfache Listen enthält,
-// bleiben diese automatisch als Hauptdateien erhalten.
 let last=library.find(d=>!d.parentId);
 if(last){
 deckId=last.id;
@@ -1119,6 +1092,7 @@ vocab=parseText(last.text).entries;
 status();
 }
 updateSplitStatus();
+renderChart();
 }
 
 load();
