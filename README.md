@@ -1,10 +1,12 @@
 # LTrain2k
-Latin Trainer (variant of vtrain2k)
+Latein Trainer - Code-Variante von Vtrain2k für Latein
 
-QuicknDirty vibe-coded vocabulary trainer for Latin words
-I’ve just understood that teaching/learning this language is fundamentally different to other languages, so I’ve modified the original code/requirements to cover better the needs here:
- - learn all meanings of a latin word
- - learn the gramatical forms
- - table/sheet learning
+Quick n Dirty vibe-coded Lernprogramm für Latein
+Einzelne Vokabelseiten können mittels Prompt durch ein LLM in das Vokabeltextformat konvertiert und abgefragt werden.
 
-Check it out [here](https://maekdev.github.io/LTrain2k
+Unterschiedliche Abfrage-Varianten werden dabei unterstützt:
+- Deutsche Übersetzung (alle dt. Übersetzungen müssen korrekt eingegeben werden)
+- Formenlehre: alle lateinischen Grundformen werden abgefragt
+- Konjugationen und Nomen/Adjektiv Formen: Tabellarische Abfrage der Formen
+
+Check it out [here](https://maekdev.github.io/LTrain2k)
