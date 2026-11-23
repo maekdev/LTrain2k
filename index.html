@@ -133,13 +133,13 @@ button{padding:12px 13px}
 <a href="https://github.com/maekdev/LTrain2k" target="_blank" rel="noopener noreferrer">Quellcode</a>
 <a href="https://maekdev.github.io/LTrain2k" target="_blank" rel="noopener noreferrer">Programm-Website</a>
 </div>
-<span class="header-version" id="versionButton" title="Verstecktes Menü">v141</span>
+<span class="header-version" id="versionButton" title="Verstecktes Menü">v142</span>
 </header>
 
 <div id="hiddenMenu" class="hidden" style="position:fixed;inset:0;z-index:1000;background:#0008;align-items:center;justify-content:center;padding:20px">
 <div style="background:white;border-radius:16px;padding:22px;width:min(360px,100%);box-shadow:0 8px 35px #0004">
 <h2 style="margin-top:0">LTrain2k – Menü</h2>
-<p style="font-size:14px;color:#806f63">Version v141</p>
+<p style="font-size:14px;color:#806f63">Version v142</p>
 <button id="updateAppBtn" style="width:100%">Update herunterladen</button>
 <p id="updateStatus" role="status" aria-live="polite" style="font-size:12px;color:#806f63;line-height:1.5"></p>
 <button id="resetCacheBtn" style="background:#b8322b;width:100%">Cache zurücksetzen</button>
@@ -367,7 +367,7 @@ Gib nach dem TXT-Block separat eine Liste unsicherer/unleserlicher Stellen aus.`
 $("aiPrompt").value=PROMPT;
 
 let library=[],deckId=null,vocab=[],queue=[],current=null,mode="typing";
-let attempt=0,maxAttempts=1,checked=false,fields=[],total=0,correct=0,wrong=0;
+let maxAttempts=1,checked=false,fields=[],total=0,correct=0,wrong=0;
 let startTime=0,timer=null,cardFlipped=false,tableTask=null;
 let currentHadError=false,awaitingAdvance=false,currentFieldIndex=-1;
 let remainingTargets=[];
@@ -871,7 +871,7 @@ next();
 function next(){
 if(!queue.length){finish();return;}
 current=queue.shift();
-attempt=0;checked=false;cardFlipped=false;
+checked=false;cardFlipped=false;
 awaitingAdvance=false;currentFieldIndex=-1;remainingTargets=[];
 $("progressText").textContent="Noch "+(queue.length+1)+" Abfrage(n)";
 let totalQueue=queue.length+1;
@@ -920,7 +920,7 @@ checkTyping(i);
 });
 result.className="meaning-result hidden";
 wrap.append(lab,inp,result);box.append(wrap);
-fields.push({input:inp,result,target:"",done:false});
+fields.push({input:inp,result,target:"",done:false,attempts:0});
 });
 $("feedback").className="feedback hidden";
 $("feedback").replaceChildren();
@@ -960,7 +960,18 @@ let good=matchIndex!==-1;
 let correctAnswer=good?remainingTargets[matchIndex]:remainingTargets[0];
 if(!correctAnswer)return;
 
-total++;item.done=true;item.input.readOnly=true;item.target=correctAnswer;
+total++;item.attempts++;
+if(!good&&item.attempts<maxAttempts){
+wrong++;currentHadError=true;
+item.result.className="meaning-result wrong";
+item.result.textContent="Falsch";
+item.input.value="";
+item.input.focus();
+updateStats();
+return;
+}
+
+item.done=true;item.input.readOnly=true;item.target=correctAnswer;
 item.result.className="meaning-result "+(good?"correct":"wrong");
 item.result.replaceChildren();
 let heading=document.createElement("strong");
