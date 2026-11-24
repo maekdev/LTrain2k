@@ -136,13 +136,13 @@ button{padding:12px 13px}
 <a href="https://github.com/maekdev/LTrain2k" target="_blank" rel="noopener noreferrer">Quellcode</a>
 <a href="https://maekdev.github.io/LTrain2k" target="_blank" rel="noopener noreferrer">Programm-Website</a>
 </div>
-<span class="header-version" id="versionButton" title="Verstecktes Menü">v144</span>
+<span class="header-version" id="versionButton" title="Verstecktes Menü">v145</span>
 </header>
 
 <div id="hiddenMenu" class="hidden" style="position:fixed;inset:0;z-index:1000;background:#0008;align-items:center;justify-content:center;padding:20px">
 <div style="background:white;border-radius:16px;padding:22px;width:min(360px,100%);box-shadow:0 8px 35px #0004">
 <h2 style="margin-top:0">LTrain2k – Menü</h2>
-<p style="font-size:14px;color:#806f63">Version v144</p>
+<p style="font-size:14px;color:#806f63">Version v145</p>
 <button id="updateAppBtn" style="width:100%">Update herunterladen</button>
 <p id="updateStatus" role="status" aria-live="polite" style="font-size:12px;color:#806f63;line-height:1.5"></p>
 <button id="resetCacheBtn" style="background:#b8322b;width:100%">Cache zurücksetzen</button>
@@ -161,7 +161,7 @@ button{padding:12px 13px}
 <p>Eine Zeile pro Eintrag: <code>Lateinische Grundform | deutsche Bedeutung(en) | Typ</code>.</p>
 <p>Mehrere deutsche Bedeutungen mit Semikolon trennen. Mehrere lateinische Formen stehen links, ebenfalls mit Komma getrennt. Der erste Eintrag ist die Grundform. Typen: <code>verb</code>, <code>adj</code>, <code>noun</code>, <code>pron</code> oder <code>other</code>. Ohne Typ wird der Eintrag im Grundformenmodus gelernt.</p>
 <p>Beispiel: <code>nōscere, nōscō, nōvī | erkennen; kennenlernen | verb</code></p>
-<p>Für die <strong>Experimentelle Abfrage – Tabellarium</strong> sind Zusatzzeilen möglich: <code>!tabverb|rogāre|ā-Konjugation|Präsens|1. Person|Singular|rogō</code>. Mehrere Zeilen mit derselben Grundform bilden eine Tabelle. Die ältere vierteilige Schreibweise <code>!tabverb|vocāre|Präsens 1. Sg.|vocō</code> bleibt lesbar. Diese Sonderzeilen werden nicht als normale Vokabeln abgefragt.</p>
+<p>Für die <strong>Tabellarium-Abfrage</strong> sind Zusatzzeilen möglich: <code>!tabverb|rogāre|ā-Konjugation|Präsens|1. Person|Singular|rogō</code>. Mehrere Zeilen mit derselben Grundform bilden eine Tabelle. Die ältere vierteilige Schreibweise <code>!tabverb|vocāre|Präsens 1. Sg.|vocō</code> bleibt lesbar. Erkannte Zeitformen erscheinen zusätzlich als Tabellarium-Teilabfragen in der Historie. Diese Sonderzeilen werden nicht als normale Vokabeln abgefragt.</p>
 <p>Zeilen, die mit <code>#</code> beginnen, sind Kommentare. Die Daten bleiben lokal in diesem Browser gespeichert.</p>
 </div>
 </details>
@@ -216,7 +216,7 @@ button{padding:12px 13px}
 <button class="mode-button selected" data-mode="typing">✍️ Eingabe<small style="display:block;font-weight:400">Grundformen und Bedeutungen</small></button>
 <button class="mode-button" data-mode="cards">🗂️ Karteikarten<small style="display:block;font-weight:400">Lösung aufdecken</small></button>
 <button class="mode-button" data-mode="verbs">🏛️ Verben / Formenlehre<small style="display:block;font-weight:400">Weitere Verbformen eingeben</small></button>
-<button class="mode-button" data-mode="tabellarium">📋 Experimentelle Abfrage – Tabellarium<small style="display:block;font-weight:400">Lateinische Tabellenformen abfragen</small></button>
+<button class="mode-button" data-mode="tabellarium">📋 Tabellarium-Abfrage<small style="display:block;font-weight:400">Lateinische Tabellenformen abfragen</small></button>
 <button class="mode-button" data-mode="nomadj">📚 Nomen / Adjektive<small style="display:block;font-weight:400">Weitere lateinische Form eingeben</small></button>
 </div>
 
@@ -284,7 +284,7 @@ button{padding:12px 13px}
 </div>
 
 <div id="tableArea" class="hidden">
-<div class="hint" style="text-align:center;font-weight:700">Experimentelle Abfrage</div>
+<div class="hint" style="text-align:center;font-weight:700">Tabellarium-Abfrage</div>
 <div class="question">
 <div class="direction">Grundform</div>
 <div class="word" id="tableLemma"></div>
@@ -472,6 +472,7 @@ catch(e){alert("Lokaler Speicher voll. Bitte ältere Listen entfernen.")}
 }
 function selected(){return library.find(x=>x.id===deckId)}
 function isChild(d){return !!d?.parentId}
+function isTabellariumSubset(d){return d?.subsetType==="tabellarium"}
 
 function queryCount(text){
 return getDeckStats(text).total;
@@ -488,7 +489,7 @@ if(d&&isChild(d))d=null;
 
 if(d){
 if(d.text!==text){
-library=library.filter(x=>x.parentId!==d.id);
+library=library.filter(x=>x.parentId!==d.id||isTabellariumSubset(x));
 d.text=text;
 d.updated=stamp();
 }
@@ -497,6 +498,7 @@ if(name)d.name=name;
 d={id:uid(),name:name||"Vokabelliste",text,created:stamp(),runs:[]};
 library.unshift(d);
 }
+syncTabellariumSubsets(d);
 deckId=d.id;
 vocab=parsed.entries;
 saveLib();
@@ -526,6 +528,7 @@ if(!d)return;
 deckId=id;
 $("vocabText").value=d.text;
 vocab=parseText(d.text).entries;
+if(isTabellariumSubset(d))setMode("tabellarium");
 renderHistory();
 status();
 renderChart();
@@ -537,7 +540,9 @@ let d=library.find(x=>x.id===id);
 if(!d)return;
 let children=library.filter(x=>x.parentId===id);
 let message=isChild(d)
-?"Diese Teileinheit wirklich löschen?"
+?isTabellariumSubset(d)
+?"Diese Tabellarium-Teilmenge wirklich löschen?"
+:"Diese Teileinheit wirklich löschen?"
 :"Diese Hauptdatei und "+children.length+" zugehörige Teileinheit(en) wirklich löschen?";
 if(!confirm(message))return;
 
@@ -572,6 +577,7 @@ name=name.trim();
 if(!name){alert("Der Name darf nicht leer sein.");return;}
 d.name=name;
 d.updated=stamp();
+if(!isChild(d))syncTabellariumSubsets(d);
 saveLib();
 renderHistory();
 renderChart();
@@ -597,7 +603,9 @@ let right=document.createElement("span");
 
 title.textContent=(isChildEntry?"":"📁 ")+d.name;
 date.textContent=(d.updated?"Aktualisiert: "+d.updated:"Erstellt: "+d.created)+
-(isChildEntry?" · Einheit "+d.partNumber+" von "+d.partCount:" · Hauptdatei");
+(isChildEntry
+?(isTabellariumSubset(d)?" · Tabellarium: "+d.subsetLabel:" · Einheit "+d.partNumber+" von "+d.partCount)
+:" · Hauptdatei");
 
 stats.className="history-stats";
 stats.textContent=statsText(d.text);
@@ -611,6 +619,7 @@ b.onclick=()=>selectDeck(d.id);
 let actions=document.createElement("div");
 actions.className="history-actions";
 
+if(!isTabellariumSubset(d)){
 let rename=document.createElement("button");
 rename.type="button";
 rename.className="history-action history-rename";
@@ -629,6 +638,9 @@ del.onclick=()=>deleteDeck(d.id);
 
 actions.append(rename,del);
 entry.append(b,actions);
+}else{
+entry.append(b);
+}
 return entry;
 }
 
@@ -644,7 +656,11 @@ bases.forEach(d=>{
 let wrapper=document.createElement("div");
 wrapper.append(makeHistoryEntry(d,false));
 let children=library.filter(x=>x.parentId===d.id)
-.sort((a,b)=>(a.partNumber||0)-(b.partNumber||0));
+.sort((a,b)=>{
+if(isTabellariumSubset(a)!==isTabellariumSubset(b))return isTabellariumSubset(a)?1:-1;
+if(isTabellariumSubset(a))return (a.subsetOrder||0)-(b.subsetOrder||0);
+return (a.partNumber||0)-(b.partNumber||0);
+});
 if(children.length){
 let childBox=document.createElement("div");
 childBox.className="history-children";
@@ -731,7 +747,7 @@ let confirmText=chunks.length+" Teileinheiten erstellen?\n\n"+
 
 if(!confirm(confirmText))return;
 
-library=library.filter(d=>d.parentId!==base.id);
+library=library.filter(d=>d.parentId!==base.id||isTabellariumSubset(d));
 
 /* Tabellenzeilen werden der Einheit zugeordnet, in der ihre Grundform liegt. */
 let tableLinesByChunk=chunks.map(chunk=>{
@@ -840,10 +856,14 @@ s.textContent="Bitte den markierten Prompt manuell kopieren.";
 }
 };
 
-document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{
-mode=b.dataset.mode;
-document.querySelectorAll("[data-mode]").forEach(x=>x.classList.toggle("selected",x===b));
-});
+function setMode(nextMode){
+mode=nextMode;
+document.querySelectorAll("[data-mode]").forEach(b=>
+b.classList.toggle("selected",b.dataset.mode===mode)
+);
+}
+
+document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
 
 function shuffle(a){
 let x=[...a];
@@ -1118,6 +1138,73 @@ const standardTableRows=[
 ["Futur I","1. Person"],["Futur I","2. Person"],["Futur I","3. Person"],
 ["Imperativ","Imperativ"],["Infinitiv Perfekt","Infinitiv"]
 ];
+
+const tableTenseOrder=[...new Set(standardTableRows.map(row=>row[0]))];
+
+function getTableTense(cell){
+let knownTenses=tableTenseOrder.find(tense=>norm(tense)===norm(cell.tense));
+if(knownTenses)return knownTenses;
+if(cell.tense)return cell.tense;
+let label=norm(cell.label);
+return tableTenseOrder.find(tense=>
+label===norm(tense)||label.startsWith(norm(tense)+" ")
+)||"";
+}
+
+function syncTabellariumSubsets(base){
+let groups=new Map();
+parseText(base.text).tables.filter(cell=>cell.form).forEach(cell=>{
+let tense=getTableTense(cell);
+if(!tense)return;
+let key="tabellarium:"+norm(tense);
+let group=groups.get(key);
+if(!group){
+let knownOrder=tableTenseOrder.findIndex(item=>norm(item)===norm(tense));
+group={key,label:tense,lines:[],order:knownOrder<0?tableTenseOrder.length:knownOrder};
+groups.set(key,group);
+}
+group.lines.push(cell.raw);
+});
+
+let existing=library.filter(item=>item.parentId===base.id&&isTabellariumSubset(item));
+let existingByKey=new Map(existing.map(item=>[item.subsetKey,item]));
+let changed=false;
+existing.forEach(item=>{
+if(!groups.has(item.subsetKey)){
+library=library.filter(entry=>entry.id!==item.id);
+changed=true;
+}
+});
+groups.forEach(group=>{
+let text=group.lines.join("\n");
+let item=existingByKey.get(group.key);
+if(item){
+if(item.text!==text||item.name!==base.name+" – "+group.label){
+item.text=text;
+item.name=base.name+" – "+group.label;
+item.updated=stamp();
+changed=true;
+}
+item.subsetLabel=group.label;
+item.subsetOrder=group.order;
+}else{
+library.push({
+id:uid(),
+name:base.name+" – "+group.label,
+text,
+created:stamp(),
+runs:[],
+parentId:base.id,
+subsetType:"tabellarium",
+subsetKey:group.key,
+subsetLabel:group.label,
+subsetOrder:group.order
+});
+changed=true;
+}
+});
+return changed;
+}
 
 function tableRowKey(tense,person){return norm(tense)+"|"+norm(person);}
 
@@ -1453,6 +1540,10 @@ try{
 library=JSON.parse(localStorage.getItem(KEY)||"[]");
 if(!Array.isArray(library))library=[];
 }catch(e){library=[];}
+let subsetsChanged=library.filter(d=>!isChild(d))
+.map(d=>syncTabellariumSubsets(d))
+.some(Boolean);
+if(subsetsChanged)saveLib();
 renderHistory();
 let last=library.find(d=>!d.parentId);
 if(last){
