@@ -100,10 +100,11 @@ button.selected{background:var(--orange);color:white;outline:2px solid var(--ora
 .feedback strong{font-size:18px}
 .card-word{font-size:clamp(28px,7vw,42px);font-weight:800;text-align:center;padding:35px 10px;color:var(--orange);overflow-wrap:anywhere;cursor:pointer;white-space:pre-line}
 .table-scroll{overflow-x:auto}
-.quiz-table{border-collapse:collapse;width:100%;font-size:14px}
+.quiz-table{border-collapse:collapse;width:100%;min-width:620px;font-size:14px}
 .quiz-table th,.quiz-table td{border:1px solid var(--border);padding:8px;text-align:center}
 .quiz-table th{background:var(--pale);color:var(--orange)}
 .quiz-table .revealed{background:var(--greenbg);color:var(--green);font-weight:700}
+.table-conjugation{text-align:center;color:var(--muted);font-weight:650;margin-top:-12px;margin-bottom:12px}
 .chart-wrap{width:100%;overflow:hidden}
 #progressChart{width:100%;height:auto;display:block}
 .chart-legend{font-size:12px;color:var(--muted);margin-top:5px}
@@ -133,13 +134,13 @@ button{padding:12px 13px}
 <a href="https://github.com/maekdev/LTrain2k" target="_blank" rel="noopener noreferrer">Quellcode</a>
 <a href="https://maekdev.github.io/LTrain2k" target="_blank" rel="noopener noreferrer">Programm-Website</a>
 </div>
-<span class="header-version" id="versionButton" title="Verstecktes Menü">v142</span>
+<span class="header-version" id="versionButton" title="Verstecktes Menü">v143</span>
 </header>
 
 <div id="hiddenMenu" class="hidden" style="position:fixed;inset:0;z-index:1000;background:#0008;align-items:center;justify-content:center;padding:20px">
 <div style="background:white;border-radius:16px;padding:22px;width:min(360px,100%);box-shadow:0 8px 35px #0004">
 <h2 style="margin-top:0">LTrain2k – Menü</h2>
-<p style="font-size:14px;color:#806f63">Version v142</p>
+<p style="font-size:14px;color:#806f63">Version v143</p>
 <button id="updateAppBtn" style="width:100%">Update herunterladen</button>
 <p id="updateStatus" role="status" aria-live="polite" style="font-size:12px;color:#806f63;line-height:1.5"></p>
 <button id="resetCacheBtn" style="background:#b8322b;width:100%">Cache zurücksetzen</button>
@@ -158,7 +159,7 @@ button{padding:12px 13px}
 <p>Eine Zeile pro Eintrag: <code>Lateinische Grundform | deutsche Bedeutung(en) | Typ</code>.</p>
 <p>Mehrere deutsche Bedeutungen mit Semikolon trennen. Mehrere lateinische Formen stehen links, ebenfalls mit Komma getrennt. Der erste Eintrag ist die Grundform. Typen: <code>verb</code>, <code>adj</code>, <code>noun</code>, <code>pron</code> oder <code>other</code>. Ohne Typ wird der Eintrag im Grundformenmodus gelernt.</p>
 <p>Beispiel: <code>nōscere, nōscō, nōvī | erkennen; kennenlernen | verb</code></p>
-<p>Für den experimentellen Tabellarium-Modus sind Zusatzzeilen möglich: <code>!tabverb|vocare|Präsens 1. Sg.|voco</code>. Mehrere Zeilen mit derselben Grundform bilden eine Tabelle. Diese Sonderzeilen werden nicht als normale Vokabeln abgefragt.</p>
+<p>Für die <strong>Experimentelle Abfrage – Tabellarium</strong> sind Zusatzzeilen möglich: <code>!tabverb|rogāre|ā-Konjugation|Präsens|1. Person|Singular|rogō</code>. Mehrere Zeilen mit derselben Grundform bilden eine Tabelle. Die ältere vierteilige Schreibweise <code>!tabverb|vocāre|Präsens 1. Sg.|vocō</code> bleibt lesbar. Diese Sonderzeilen werden nicht als normale Vokabeln abgefragt.</p>
 <p>Zeilen, die mit <code>#</code> beginnen, sind Kommentare. Die Daten bleiben lokal in diesem Browser gespeichert.</p>
 </div>
 </details>
@@ -213,7 +214,7 @@ button{padding:12px 13px}
 <button class="mode-button selected" data-mode="typing">✍️ Eingabe<small style="display:block;font-weight:400">Grundformen und Bedeutungen</small></button>
 <button class="mode-button" data-mode="cards">🗂️ Karteikarten<small style="display:block;font-weight:400">Lösung aufdecken</small></button>
 <button class="mode-button" data-mode="verbs">🏛️ Verben / Formenlehre<small style="display:block;font-weight:400">Weitere Verbformen eingeben</small></button>
-<button class="mode-button" data-mode="tabellarium">📋 Tabellarium<small style="display:block;font-weight:400">Tabellenformen abfragen</small></button>
+<button class="mode-button" data-mode="tabellarium">📋 Experimentelle Abfrage – Tabellarium<small style="display:block;font-weight:400">Lateinische Tabellenformen abfragen</small></button>
 <button class="mode-button" data-mode="nomadj">📚 Nomen / Adjektive<small style="display:block;font-weight:400">Weitere lateinische Form eingeben</small></button>
 </div>
 
@@ -281,10 +282,12 @@ button{padding:12px 13px}
 </div>
 
 <div id="tableArea" class="hidden">
+<div class="hint" style="text-align:center;font-weight:700">Experimentelle Abfrage</div>
 <div class="question">
 <div class="direction">Grundform</div>
 <div class="word" id="tableLemma"></div>
 </div>
+<div class="table-conjugation" id="tableConjugation"></div>
 <div class="table-scroll" id="tableDisplay"></div>
 <div id="tableQuestion" class="feedback"></div>
 <label for="tableAnswer">Gesuchte Tabellenform</label>
@@ -358,9 +361,10 @@ TABELLARIUM (optional)
 
 Wenn eine abgebildete Verbentabelle vorhanden ist, erfasse zusätzlich jede Tabellenzelle in dieser Form:
 
-!tabverb|Grundform|Bezeichnung der Tabellenzelle|lateinische Form
+!tabverb|Grundform|Konjugation|Zeitform|Person|Numerus|lateinische Form
 
-Eine Zeile pro Tabellenzelle; identische Grundformen gruppieren sich automatisch.
+Beispiel: !tabverb|rogāre|ā-Konjugation|Präsens|1. Person|Singular|rogō
+Eine Zeile pro Tabellenzelle; identische Grundformen gruppieren sich automatisch. Die ältere vierteilige Schreibweise !tabverb|Grundform|Bezeichnung|Form bleibt ebenfalls lesbar.
 
 Gib nach dem TXT-Block separat eine Liste unsicherer/unleserlicher Stellen aus.`;
 
@@ -368,7 +372,7 @@ $("aiPrompt").value=PROMPT;
 
 let library=[],deckId=null,vocab=[],queue=[],current=null,mode="typing";
 let maxAttempts=1,checked=false,fields=[],total=0,correct=0,wrong=0;
-let startTime=0,timer=null,cardFlipped=false,tableTask=null;
+let startTime=0,timer=null,cardFlipped=false,tableTask=null,tableTotal=0;
 let currentHadError=false,awaitingAdvance=false,currentFieldIndex=-1;
 let remainingTargets=[];
 
@@ -386,10 +390,32 @@ let s=line.trim();
 if(!s||s.startsWith("#"))return;
 if(s.startsWith("!tabverb|")){
 let p=s.split("|");
-if(p.length>=4)tables.push({
-lemma:p[1].trim(),
-label:p[2].trim(),
+if(p.length>=7)tables.push({
+lemma:(p[1]||"").trim(),
+conjugation:(p[2]||"").trim(),
+tense:(p[3]||"").trim(),
+person:(p[4]||"").trim(),
+number:(p[5]||"").trim(),
+form:p.slice(6).join("|").trim(),
+raw:s
+});
+else if(p.length===4)tables.push({
+lemma:(p[1]||"").trim(),
+conjugation:"",
+tense:"",
+person:"",
+number:"",
+label:(p[2]||"").trim(),
 form:p.slice(3).join("|").trim(),
+raw:s
+});
+else if(p.length>4)tables.push({
+lemma:(p[1]||"").trim(),
+conjugation:(p[2]||"").trim(),
+tense:(p[3]||"").trim(),
+person:(p[4]||"").trim(),
+number:(p[5]||"").trim(),
+form:"",
 raw:s
 });
 return;
@@ -420,7 +446,7 @@ let verbs=p.entries
 let nomadj=p.entries
 .filter(e=>["noun","adj","pron"].includes(e.type))
 .reduce((n,e)=>n+Math.max(0,e.forms.length-1),0);
-let tables=p.tables.length;
+let tables=p.tables.filter(t=>t.form).length;
 return{
 entries:p.entries.length,
 meanings,
@@ -842,13 +868,13 @@ if(!saveDeck(selected()?.name||"Latein "+stamp(),text))return;
 vocab=parseText(text).entries;
 maxAttempts=+$("attempts").value;
 queue=[];
+current=null;tableTask=null;tableTotal=0;
 if(mode==="typing"||mode==="cards")queue=shuffle(vocab);
 if(mode==="verbs")queue=shuffle(vocab.filter(x=>x.type==="verb"&&x.forms.length>1));
 if(mode==="nomadj")queue=shuffle(vocab.filter(x=>["noun","adj","pron"].includes(x.type)&&x.forms.length>1));
 if(mode==="tabellarium"){
-let groups={};
-p.tables.forEach(t=>(groups[t.lemma]??=[]).push(t));
-queue=shuffle(Object.entries(groups).flatMap(([lemma,rows])=>rows.map(r=>({lemma,rows,task:r}))));
+queue=groupTableRows(p.tables);
+tableTotal=queue.reduce((n,group)=>n+group.cells.length,0);
 }
 if(!queue.length){
 alert(mode==="verbs"?"Keine Verben mit Zusatzformen (Typ verb) gefunden.":mode==="nomadj"?"Keine Nomen/Adjektive/Pronomen mit Zusatzformen gefunden.":"Für diesen Modus wurden keine passenden Einträge gefunden.");
@@ -869,6 +895,12 @@ next();
 }
 
 function next(){
+if(mode==="tabellarium"){
+if(!queue.length){current=null;tableTask=null;finish();return;}
+current=queue.shift();
+setupTable();
+return;
+}
 if(!queue.length){finish();return;}
 current=queue.shift();
 checked=false;cardFlipped=false;
@@ -1062,55 +1094,131 @@ updateStats();next();
 $("cardCorrect").onclick=()=>decide(true);
 $("cardWrong").onclick=()=>decide(false);
 
+// EXPERIMENTELLES TABELLARIUM – BEGINN
+function groupTableRows(tables){
+let groups=new Map();
+tables.filter(t=>t.form).forEach(cell=>{
+let group=groups.get(cell.lemma);
+if(!group){
+group={lemma:cell.lemma,conjugation:cell.conjugation,cells:[]};
+groups.set(cell.lemma,group);
+}
+if(!group.conjugation)group.conjugation=cell.conjugation;
+group.cells.push({...cell,index:group.cells.length});
+});
+return shuffle([...groups.values()].map(group=>({...group,openCells:shuffle([...group.cells])})));
+}
+
+const standardTableRows=[
+["Infinitiv Präsens","Infinitiv"],
+["Präsens","1. Person"],["Präsens","2. Person"],["Präsens","3. Person"],
+["Imperfekt","1. Person"],["Imperfekt","2. Person"],["Imperfekt","3. Person"],
+["Futur I","1. Person"],["Futur I","2. Person"],["Futur I","3. Person"],
+["Imperativ","Imperativ"],["Infinitiv Perfekt","Infinitiv"]
+];
+
+function tableRowKey(tense,person){return norm(tense)+"|"+norm(person);}
+
 function setupTable(){
-tableTask=current.task;
 $("tableLemma").textContent=current.lemma;
+$("tableConjugation").textContent=current.conjugation;
+let rows=new Map();
+standardTableRows.forEach(([tense,person])=>{
+let row={tense,person,cells:{singular:null,plural:null}};
+rows.set(tableRowKey(tense,person),row);
+});
+current.cells.forEach(cell=>{
+let tense=cell.tense||cell.label||"—",person=cell.person||"—";
+let key=tableRowKey(tense,person),row=rows.get(key);
+if(!row){
+row={tense,person,cells:{singular:null,plural:null}};
+rows.set(key,row);
+}
+let column=norm(cell.number).includes("plural")?"plural":"singular";
+row.cells[column]=cell;
+});
 let table=document.createElement("table");table.className="quiz-table";
+let header=document.createElement("tr");
+["Zeitform","Person","Singular","Plural"].forEach(text=>{
+let th=document.createElement("th");th.textContent=text;header.append(th);
+});
+table.append(header);
+rows.forEach(row=>{
 let tr=document.createElement("tr");
-["Grundform","Tabellenstelle","Form"].forEach(x=>{
-let th=document.createElement("th");th.textContent=x;tr.append(th);
+let tense=document.createElement("th");tense.scope="row";tense.textContent=row.tense;tr.append(tense);
+let person=document.createElement("td");person.textContent=row.person;tr.append(person);
+["singular","plural"].forEach(column=>{
+let td=document.createElement("td"),cell=row.cells[column];
+if(cell){
+td.dataset.cellIndex=cell.index;
+td.textContent=cell.revealed?cell.form:"???";
+if(cell.revealed)td.className="revealed";
+}else td.textContent="–";
+tr.append(td);
 });
 table.append(tr);
-current.rows.forEach(r=>{
-let row=document.createElement("tr");
-[current.lemma,r.label,r.form].forEach((v,i)=>{
-let td=document.createElement("td");td.textContent=v;
-if(i===2&&r===tableTask){td.textContent="???";td.className="masked";}
-row.append(td);
-});
-table.append(row);
 });
 $("tableDisplay").replaceChildren(table);
-$("tableQuestion").textContent="Gesucht: "+tableTask.label;
-$("tableAnswer").value="";
 $("tableFeedback").className="feedback hidden";
+askNextTableCell();
+}
+
+function updateTableProgress(){
+let remaining=(current?.openCells.length||0)+(tableTask?1:0)+
+queue.reduce((count,group)=>count+group.openCells.length,0);
+$("progressText").textContent="Noch "+remaining+" Tabellenform(en)";
+$("progressBar").style.width=(tableTotal?(tableTotal-remaining)/tableTotal*100:100)+"%";
+}
+
+function askNextTableCell(){
+tableTask=current.openCells.shift();
+if(!tableTask){
+current=null;
+next();
+return;
+}
+let parts=[tableTask.tense||tableTask.label,tableTask.person,tableTask.number]
+.filter(Boolean);
+$("tableQuestion").textContent="Gesucht: "+(parts.join(" – ")||"Form");
+$("tableAnswer").value="";
 $("tableAnswer").disabled=false;
+if($("tableFeedback").classList.contains("correct"))$("tableFeedback").className="feedback hidden";
+updateTableProgress();
 $("tableAnswer").focus();
 }
 
 function checkTable(){
 let v=$("tableAnswer").value.trim();
-if(!v)return;
+if(!tableTask)return;
 total++;
 if(norm(v)===norm(tableTask.form)){
 correct++;
+tableTask.revealed=true;
 $("tableFeedback").className="feedback correct";
 $("tableFeedback").textContent="Richtig: "+tableTask.form;
-let cells=$("tableDisplay").querySelectorAll("tr");
-cells.forEach(row=>{
-if(row.children[1]?.textContent===tableTask.label){
-row.children[2].textContent=tableTask.form;row.children[2].className="revealed";
+$("tableDisplay").querySelectorAll("[data-cell-index]").forEach(cell=>{
+if(Number(cell.dataset.cellIndex)===tableTask.index){
+cell.textContent=tableTask.form;cell.className="revealed";
 }
 });
 $("tableAnswer").disabled=true;
-updateStats();setTimeout(()=>next(),650);
+updateStats();
+const answeredCell=tableTask;
+setTimeout(()=>{
+if(tableTask!==answeredCell)return;
+askNextTableCell();
+},650);
 }else{
 wrong++;
 $("tableFeedback").className="feedback wrong";
-$("tableFeedback").textContent="Noch nicht richtig. Die Lösung bleibt zunächst verborgen; der Eintrag kommt später erneut.";
-queue.push(current);$("tableAnswer").value="";$("tableAnswer").focus();updateStats();
+$("tableFeedback").textContent="Noch nicht richtig. Die Lösung bleibt verborgen; die Form wird später erneut abgefragt.";
+current.openCells.push(tableTask);
+updateStats();
+askNextTableCell();
 }
 }
+// EXPERIMENTELLES TABELLARIUM – ENDE
+
 $("tableAnswer").addEventListener("keydown",e=>{
 if(e.key==="Enter"){e.preventDefault();checkTable();}
 });
@@ -1141,6 +1249,7 @@ renderChart();
 
 function stop(){
 clearInterval(timer);
+tableTask=null;
 $("learningPanel").classList.add("hidden");
 $("statsPanel").classList.add("hidden");
 $("endPanel").classList.add("hidden");
