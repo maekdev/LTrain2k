@@ -104,6 +104,8 @@ button.selected{background:var(--orange);color:white;outline:2px solid var(--ora
 .quiz-table th,.quiz-table td{border:1px solid var(--border);padding:8px;text-align:center}
 .quiz-table th{background:var(--pale);color:var(--orange)}
 .quiz-table .revealed{background:var(--greenbg);color:var(--green);font-weight:700}
+.quiz-table .target{background:#fff0df;outline:3px solid var(--orange2);outline-offset:-3px;font-weight:800}
+.table-question{font-size:19px;font-weight:800;text-align:center;color:var(--orange);background:var(--pale);border:2px solid var(--orange2)}
 .table-conjugation{text-align:center;color:var(--muted);font-weight:650;margin-top:-12px;margin-bottom:12px}
 .chart-wrap{width:100%;overflow:hidden}
 #progressChart{width:100%;height:auto;display:block}
@@ -134,13 +136,13 @@ button{padding:12px 13px}
 <a href="https://github.com/maekdev/LTrain2k" target="_blank" rel="noopener noreferrer">Quellcode</a>
 <a href="https://maekdev.github.io/LTrain2k" target="_blank" rel="noopener noreferrer">Programm-Website</a>
 </div>
-<span class="header-version" id="versionButton" title="Verstecktes Menü">v143</span>
+<span class="header-version" id="versionButton" title="Verstecktes Menü">v144</span>
 </header>
 
 <div id="hiddenMenu" class="hidden" style="position:fixed;inset:0;z-index:1000;background:#0008;align-items:center;justify-content:center;padding:20px">
 <div style="background:white;border-radius:16px;padding:22px;width:min(360px,100%);box-shadow:0 8px 35px #0004">
 <h2 style="margin-top:0">LTrain2k – Menü</h2>
-<p style="font-size:14px;color:#806f63">Version v143</p>
+<p style="font-size:14px;color:#806f63">Version v144</p>
 <button id="updateAppBtn" style="width:100%">Update herunterladen</button>
 <p id="updateStatus" role="status" aria-live="polite" style="font-size:12px;color:#806f63;line-height:1.5"></p>
 <button id="resetCacheBtn" style="background:#b8322b;width:100%">Cache zurücksetzen</button>
@@ -289,10 +291,10 @@ button{padding:12px 13px}
 </div>
 <div class="table-conjugation" id="tableConjugation"></div>
 <div class="table-scroll" id="tableDisplay"></div>
-<div id="tableQuestion" class="feedback"></div>
+<div id="tableQuestion" class="feedback table-question"></div>
 <label for="tableAnswer">Gesuchte Tabellenform</label>
 <input id="tableAnswer" autocomplete="off" autocapitalize="off" spellcheck="false">
-<div class="hint">Enter = prüfen. Richtige Felder bleiben grün sichtbar; falsche Antworten werden später erneut abgefragt.</div>
+<div class="hint">Enter = prüfen. Richtige Felder bleiben grün sichtbar. Falsche Antworten geben erst nach dem letzten Versuch die Lösung preis und werden später erneut abgefragt.</div>
 <div id="tableFeedback" class="feedback hidden"></div>
 </div>
 </section>
@@ -372,7 +374,7 @@ $("aiPrompt").value=PROMPT;
 
 let library=[],deckId=null,vocab=[],queue=[],current=null,mode="typing";
 let maxAttempts=1,checked=false,fields=[],total=0,correct=0,wrong=0;
-let startTime=0,timer=null,cardFlipped=false,tableTask=null,tableTotal=0;
+let startTime=0,timer=null,cardFlipped=false,tableTask=null,tableTotal=0,tableAwaitingAdvance=false;
 let currentHadError=false,awaitingAdvance=false,currentFieldIndex=-1;
 let remainingTargets=[];
 
@@ -1122,6 +1124,7 @@ function tableRowKey(tense,person){return norm(tense)+"|"+norm(person);}
 function setupTable(){
 $("tableLemma").textContent=current.lemma;
 $("tableConjugation").textContent=current.conjugation;
+tableAwaitingAdvance=false;
 let rows=new Map();
 standardTableRows.forEach(([tense,person])=>{
 let row={tense,person,cells:{singular:null,plural:null}};
@@ -1164,13 +1167,19 @@ askNextTableCell();
 }
 
 function updateTableProgress(){
-let remaining=(current?.openCells.length||0)+(tableTask?1:0)+
+let remaining=(current?.openCells.length||0)+(tableTask&&!tableAwaitingAdvance?1:0)+
 queue.reduce((count,group)=>count+group.openCells.length,0);
 $("progressText").textContent="Noch "+remaining+" Tabellenform(en)";
 $("progressBar").style.width=(tableTotal?(tableTotal-remaining)/tableTotal*100:100)+"%";
 }
 
 function askNextTableCell(){
+tableAwaitingAdvance=false;
+tableTask=null;
+document.querySelectorAll("#tableDisplay .target").forEach(cell=>{
+cell.classList.remove("target");
+cell.removeAttribute("aria-label");
+});
 tableTask=current.openCells.shift();
 if(!tableTask){
 current=null;
@@ -1182,15 +1191,28 @@ let parts=[tableTask.tense||tableTask.label,tableTask.person,tableTask.number]
 $("tableQuestion").textContent="Gesucht: "+(parts.join(" – ")||"Form");
 $("tableAnswer").value="";
 $("tableAnswer").disabled=false;
-if($("tableFeedback").classList.contains("correct"))$("tableFeedback").className="feedback hidden";
+$("tableAnswer").readOnly=false;
+tableTask.attempts=tableTask.attempts||0;
+$("tableFeedback").className="feedback hidden";
+$("tableFeedback").replaceChildren();
+let targetCell=$("tableDisplay").querySelector('[data-cell-index="'+tableTask.index+'"]');
+if(targetCell){
+targetCell.classList.add("target");
+targetCell.setAttribute("aria-label","Gesuchte Tabellenform");
+}
 updateTableProgress();
 $("tableAnswer").focus();
 }
 
 function checkTable(){
+if(tableAwaitingAdvance){
+askNextTableCell();
+return;
+}
 let v=$("tableAnswer").value.trim();
-if(!tableTask)return;
+if(!tableTask||!v)return;
 total++;
+tableTask.attempts++;
 if(norm(v)===norm(tableTask.form)){
 correct++;
 tableTask.revealed=true;
@@ -1205,22 +1227,35 @@ $("tableAnswer").disabled=true;
 updateStats();
 const answeredCell=tableTask;
 setTimeout(()=>{
-if(tableTask!==answeredCell)return;
+if(tableTask!==answeredCell||!tableAwaitingAdvance)return;
 askNextTableCell();
 },650);
+tableAwaitingAdvance=true;
 }else{
 wrong++;
 $("tableFeedback").className="feedback wrong";
-$("tableFeedback").textContent="Noch nicht richtig. Die Lösung bleibt verborgen; die Form wird später erneut abgefragt.";
-current.openCells.push(tableTask);
+if(tableTask.attempts<maxAttempts){
+$("tableFeedback").textContent="Noch nicht richtig. Versuch "+tableTask.attempts+" von "+maxAttempts+".";
+$("tableAnswer").value="";
+$("tableAnswer").focus();
+}else{
+$("tableFeedback").textContent="Falsch – richtige Lösung: "+tableTask.form;
+current.openCells.push({...tableTask,attempts:0});
+$("tableAnswer").readOnly=true;
+$("tableAnswer").focus();
+tableAwaitingAdvance=true;
+}
 updateStats();
-askNextTableCell();
 }
 }
 // EXPERIMENTELLES TABELLARIUM – ENDE
 
 $("tableAnswer").addEventListener("keydown",e=>{
-if(e.key==="Enter"){e.preventDefault();checkTable();}
+if(e.key==="Enter"){
+e.preventDefault();
+if(tableAwaitingAdvance)askNextTableCell();
+else checkTable();
+}
 });
 
 function finish(){
@@ -1250,6 +1285,7 @@ renderChart();
 function stop(){
 clearInterval(timer);
 tableTask=null;
+tableAwaitingAdvance=false;
 $("learningPanel").classList.add("hidden");
 $("statsPanel").classList.add("hidden");
 $("endPanel").classList.add("hidden");
